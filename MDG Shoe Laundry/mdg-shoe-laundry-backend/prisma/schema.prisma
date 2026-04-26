@@ -1,0 +1,288 @@
+// MDG Shoe Laundry - Prisma Schema
+// Professional shoe laundry management system
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+enum UserRole {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  MOBILE_PAYMENT
+  BANK_TRANSFER
+  CASH
+}
+
+// ==================== MODELS ====================
+
+// User Model - Customers, Staff, Admin
+model User {
+  id                    Int       @id @default(autoincrement())
+  email                 String    @unique
+  password              String
+  firstName             String
+  lastName              String
+  phone                 String
+  role                  UserRole  @default(CUSTOMER)
+  
+  // Profile
+  profileImage          String?
+  address               String?
+  city                  String?
+  zipCode               String?
+  
+  // Account status
+  isActive              Boolean   @default(true)
+  emailVerified         Boolean   @default(false)
+  
+  // Relations
+  orders                Order[]
+  payments              Payment[]
+  reviews               Review[]
+  notifications         Notification[]
+  files                 FileUpload[]
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  lastLogin             DateTime?
+  
+  @@index([email])
+  @@index([role])
+}
+
+// Service Model - Laundry services offered
+model Service {
+  id                    Int       @id @default(autoincrement())
+  name                  String    // e.g., "Premium Wash", "Standard Clean"
+  description           String
+  price                 Float
+  estimatedDays         Int       // Estimated days for completion
+  icon                  String?   // Icon URL or identifier
+  isActive              Boolean   @default(true)
+  
+  // Relations
+  orderServices         OrderService[]
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([isActive])
+}
+
+// Order Model - Customer orders
+model Order {
+  id                    Int       @id @default(autoincrement())
+  orderNumber           String    @unique
+  status                OrderStatus @default(PENDING)
+  
+  // Customer info
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                Int
+  
+  // Order details
+  pickupDate            DateTime
+  deliveryDate          DateTime?
+  completionDate        DateTime?
+  
+  // Locations
+  pickupLocation        String
+  deliveryLocation      String?
+  
+  // Additional info
+  notes                 String?
+  aiDiagnosis           String?   // AI analysis of shoes
+  
+  // Financial
+  totalAmount           Float
+  discount              Float     @default(0)
+  finalAmount           Float
+  isPaid                Boolean   @default(false)
+  
+  // Relations
+  shoes                 Shoe[]
+  services              OrderService[]
+  payments              Payment[]
+  files                 FileUpload[]
+  review                Review?
+  notifications         Notification[]
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@index([createdAt])
+}
+
+// Shoe Model - Individual shoes in an order
+model Shoe {
+  id                    Int       @id @default(autoincrement())
+  brand                 String
+  model                 String
+  color                 String?
+  size                  String?
+  condition             String?   // e.g., "Lightly Soiled", "Heavily Soiled"
+  material              String?   // e.g., "Canvas", "Leather", "Mesh"
+  
+  // Relations
+  order                 Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               Int
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  
+  @@index([orderId])
+}
+
+// OrderService Model - Services applied to an order
+model OrderService {
+  id                    Int       @id @default(autoincrement())
+  
+  // Relations
+  order                 Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               Int
+  
+  service               Service   @relation(fields: [serviceId], references: [id])
+  serviceId             Int
+  
+  quantity              Int       @default(1)
+  price                 Float     // Price at time of order
+  
+  @@unique([orderId, serviceId])
+  @@index([orderId])
+}
+
+// Payment Model - Payment transactions
+model Payment {
+  id                    Int       @id @default(autoincrement())
+  transactionId         String    @unique
+  amount                Float
+  status                PaymentStatus @default(PENDING)
+  method                PaymentMethod
+  
+  // Relations
+  order                 Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               Int
+  
+  user                  User      @relation(fields: [userId], references: [id])
+  userId                Int
+  
+  // Payment details
+  reference             String?
+  receipt               String?   // URL to receipt
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([orderId])
+  @@index([userId])
+  @@index([status])
+}
+
+// Review Model - Customer reviews and ratings
+model Review {
+  id                    Int       @id @default(autoincrement())
+  rating                Int       // 1-5 stars
+  comment               String
+  
+  // Relations
+  order                 Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               Int       @unique
+  
+  user                  User      @relation(fields: [userId], references: [id])
+  userId                Int
+  
+  // Moderation
+  isApproved            Boolean   @default(true)
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([isApproved])
+}
+
+// Notification Model - Email, SMS, in-app notifications
+model Notification {
+  id                    Int       @id @default(autoincrement())
+  type                  String    // EMAIL, SMS, IN_APP
+  title                 String
+  message               String
+  
+  // Relations
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                Int
+  
+  order                 Order?    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               Int?
+  
+  // Status
+  isRead                Boolean   @default(false)
+  sentAt                DateTime?
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// FileUpload Model - Handles all file uploads (order photos, etc.)
+model FileUpload {
+  id                    Int       @id @default(autoincrement())
+  fileName              String
+  fileUrl               String
+  fileSize              Int       // In bytes
+  mimeType              String
+  
+  // Relations
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                Int
+  
+  order                 Order?    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               Int?
+  
+  // File info
+  purpose               String    // e.g., "ORDER_PHOTO", "RECEIPT", "DOCUMENTATION"
+  
+  // Timestamps
+  uploadedAt            DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([orderId])
+}
