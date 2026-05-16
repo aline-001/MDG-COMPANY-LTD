@@ -1,49 +1,49 @@
-# 🏮 MDG Shoe Laundry - Professional Shoe Cleaning Platform
+#  MDG Shoe Laundry - Professional Shoe Cleaning Platform
 
 > **A complete, production-ready shoe laundry management system with beautiful UI, strong backend, and comprehensive features.**
 
-## 🎯 Project Vision
+##  Project Vision
 
 Transform shoe care into a seamless, professional experience with:
-- ✨ Beautiful, modern user interface
-- 🔐 Secure authentication & role-based access
-- 📊 Complete business management system
-- 💼 Professional customer experience
-- 📈 Business analytics & insights
+- Beautiful, modern user interface
+- Secure authentication & role-based access
+- Complete business management system
+- Professional customer experience
+- Business analytics & insights
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 ### For Customers
-- 📱 Easy order creation and tracking
-- 👤 Profile management
-- 💳 Multiple payment options
-- ⭐ Leave reviews & ratings
-- 📋 Order history & receipts
-- 🔔 Real-time notifications
+-  Easy order creation and tracking
+-  Profile management
+-  Multiple payment options
+- Leave reviews & ratings
+- Order history & receipts
+- Real-time notifications
 
 ### For Admin/Staff
-- 📊 Comprehensive dashboard
-- 📦 Order management & tracking
-- 💰 Revenue analytics
-- 👥 Customer management
-- 📈 Business statistics
-- 🔧 Service management
+-  Comprehensive dashboard
+- Order management & tracking
+- Revenue analytics
+- Customer management
+- Business statistics
+- Service management
 
 ### Platform Features
-- 🔐 JWT authentication
-- 🛡️ Role-based access control
-- 💳 Payment processing
-- 📧 Email notifications
-- 📱 SMS notifications
-- 📱 Mobile responsive
-- ♿ Accessible design
-- 🚀 Fast performance
+-  JWT authentication
+- Role-based access control
+- Payment processing
+- Email notifications
+- SMS notifications
+- Mobile responsive
+- Accessible design
+- Fast performance
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### Backend Stack
 - **Framework**: NestJS (TypeScript)
@@ -59,7 +59,7 @@ Transform shoe care into a seamless, professional experience with:
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 mdg-shoe-laundry/
@@ -71,7 +71,7 @@ mdg-shoe-laundry/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
@@ -99,24 +99,24 @@ npm run dev
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 - **[QUICK_START.md](./QUICK_START.md)** - Setup instructions & quick reference
 - **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - Complete feature list & architecture
 
 ---
 
-## 🎨 UI Highlights
+## UI Highlights
 
-- 🎯 Professional color scheme (Blue/Teal)
-- 📱 Fully responsive design
-- ⚡ Smooth animations & transitions
-- ♿ Accessible components
-- 🎨 Reusable component library
+- Professional color scheme (Blue/Teal)
+- Fully responsive design
+- Smooth animations & transitions
+- Accessible components
+-  Reusable component library
 
 ---
 
-## 🔐 Security
+##  Security
 
 ✅ JWT authentication with expiry
 ✅ Refresh token mechanism
@@ -128,7 +128,7 @@ npm run dev
 
 ---
 
-## 📊 Database Schema
+##  Database Schema
 
 **Core Models:**
 - `User` - Customers, staff, admin
@@ -142,7 +142,7 @@ npm run dev
 
 ---
 
-## 🌐 Pages & Routes
+##  Pages & Routes
 
 ### Public Pages
 - Home (`/`)
@@ -162,7 +162,7 @@ npm run dev
 
 ---
 
-## 🎯 API Endpoints
+## API Endpoints
 
 ### Authentication
 ```
@@ -191,7 +191,7 @@ POST   /payments
 
 ---
 
-## 💡 What's Included
+## What's Included
 
 ✅ Complete Prisma schema
 ✅ NestJS backend modules (Auth, Orders, Services, Payments, Reviews)
@@ -206,7 +206,7 @@ POST   /payments
 
 ---
 
-## 🚀 Deployment Ready
+## Deployment Ready
 
 The application is ready for deployment to:
 - Vercel (Frontend)
@@ -216,7 +216,7 @@ The application is ready for deployment to:
 
 ---
 
-## 📈 Future Enhancements
+## Future Enhancements
 
 - AI shoe analysis
 - Pickup/delivery tracking
@@ -229,7 +229,7 @@ The application is ready for deployment to:
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Feel free to extend and customize:
 1. Add new services
@@ -240,13 +240,13 @@ Feel free to extend and customize:
 
 ---
 
-## 📝 License
+##  License
 
 This project is built for MDG Shoe Laundry. All rights reserved.
 
 ---
 
-## 📞 Support
+## Support
 
 For questions or issues:
 1. Check QUICK_START.md
@@ -256,7 +256,7 @@ For questions or issues:
 
 ---
 
-## ✨ Getting Started
+##  Getting Started
 
 1. **Read** → [QUICK_START.md](./QUICK_START.md)
 2. **Setup** → Backend + Frontend
@@ -266,8 +266,8 @@ For questions or issues:
 
 ---
 
-## 🎉 Ready to Launch!
+## Ready to Launch!
 
-Your professional shoe laundry platform is complete. Customize it with your branding and launch to your customers!
+That's our professional shoe laundry platform.
 
-**Happy cleaning! 🧼👟**
+**Happy cleaning! **
