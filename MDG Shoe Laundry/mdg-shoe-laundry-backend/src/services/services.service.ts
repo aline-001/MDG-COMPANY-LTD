@@ -58,6 +58,11 @@ export class ServicesService {
    */
   async toggleActive(id: number) {
     const service = await this.findOne(id);
+    
+    if (!service) {
+      throw new Error('Service not found');
+    }
+    
     return await this.prisma.service.update({
       where: { id },
       data: { isActive: !service.isActive },

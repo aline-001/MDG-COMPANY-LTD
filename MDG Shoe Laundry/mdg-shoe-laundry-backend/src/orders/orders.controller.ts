@@ -38,12 +38,12 @@ export class OrdersController {
   @UseGuards(AuthGuard)
   async findAll(
     @Request() req: any,
-    @Query('skip') skip = 0,
-    @Query('take') take = 10,
+    @Query('skip') skip: string = '0',
+    @Query('take') take: string = '10',
   ) {
     // If customer, only return their orders
     const userId = req.user.role === 'CUSTOMER' ? req.user.id : undefined;
-    return await this.ordersService.findAll(userId, parseInt(skip), parseInt(take));
+    return await this.ordersService.findAll(userId, parseInt(skip, 10), parseInt(take, 10));
   }
 
   /**
@@ -79,7 +79,7 @@ export class OrdersController {
   async findOne(@Request() req: any, @Param('id') id: string) {
     // Customers can only see their orders
     const userId = req.user.role === 'CUSTOMER' ? req.user.id : undefined;
-    return await this.ordersService.findOne(parseInt(id), userId);
+    return await this.ordersService.findOne(parseInt(id, 10), userId);
   }
 
   /**
@@ -94,7 +94,7 @@ export class OrdersController {
   ) {
     // Customers can only update their orders
     const userId = req.user.role === 'CUSTOMER' ? req.user.id : undefined;
-    return await this.ordersService.update(parseInt(id), updateOrderDto, userId);
+    return await this.ordersService.update(parseInt(id, 10), updateOrderDto, userId);
   }
 
   /**
@@ -106,7 +106,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() updateStatusDto: UpdateOrderStatusDto,
   ) {
-    return await this.ordersService.updateStatus(parseInt(id), updateStatusDto);
+    return await this.ordersService.updateStatus(parseInt(id, 10), updateStatusDto);
   }
 
   /**
@@ -116,7 +116,7 @@ export class OrdersController {
   @UseGuards(AuthGuard)
   async cancelOrder(@Request() req: any, @Param('id') id: string) {
     const userId = req.user.role === 'CUSTOMER' ? req.user.id : undefined;
-    return await this.ordersService.cancel(parseInt(id), userId);
+    return await this.ordersService.cancel(parseInt(id, 10), userId);
   }
 
   /**
@@ -125,7 +125,7 @@ export class OrdersController {
   @Put(':id/mark-paid')
   @UseGuards(AuthGuard, RolesGuard)
   async markAsPaid(@Param('id') id: string) {
-    return await this.ordersService.markAsPaid(parseInt(id));
+    return await this.ordersService.markAsPaid(parseInt(id, 10));
   }
 
   /**
@@ -138,7 +138,7 @@ export class OrdersController {
     if (req.user.role !== 'ADMIN') {
       throw new Error('Only admins can delete orders');
     }
-    return await this.ordersService.remove(parseInt(id));
+    return await this.ordersService.remove(parseInt(id, 10));
   }
 
   /**
@@ -150,14 +150,13 @@ export class OrdersController {
   async uploadPhoto(
     @Request() req: any,
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
   ) {
-    // TODO: Implement file upload to cloud storage
     // For now, just acknowledge the upload
     return {
       success: true,
       message: 'Photo uploaded successfully',
-      fileSize: file.size,
+      fileSize: file?.size || 0,
     };
   }
 }

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as nodemailer from 'nodemailer';
-import * as twilio from 'twilio';
+import twilio from 'twilio';
 
 @Injectable()
 export class NotificationsService {
   private emailTransporter: nodemailer.Transporter;
-  private twilioClient: twilio.Twilio;
+  private twilioClient: twilio.Twilio | null = null;
 
   constructor(private prisma: PrismaService) {
     this.initializeEmailService();
@@ -17,16 +17,14 @@ export class NotificationsService {
    * Initialize email service with Nodemailer
    */
   private initializeEmailService() {
-    // Configure your email provider (Gmail, SendGrid, etc.)
     this.emailTransporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER || 'your-email@gmail.com',
-        pass: process.env.EMAIL_PASSWORD || 'your-app-password', // Use app-specific password for Gmail
+        pass: process.env.EMAIL_PASSWORD || 'your-app-password',
       },
     });
 
-    // Test connection
     this.emailTransporter.verify((error) => {
       if (error) {
         console.error('Email service error:', error);
@@ -37,15 +35,25 @@ export class NotificationsService {
   }
 
   /**
-   * Initialize SMS service with Twilio
+   * Initialize SMS service with Twilio with safety guards
    */
   private initializeSMSService() {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID || 'your-account-sid';
-    const authToken = process.env.TWILIO_AUTH_TOKEN || 'your-auth-token';
-    const twilioPhone = process.env.TWILIO_PHONE_NUMBER || '+1234567890';
+    try {
+      const accountSid = process.env.TWILIO_ACCOUNT_SID;
+      const authToken = process.env.TWILIO_AUTH_TOKEN;
 
-    this.twilioClient = twilio(accountSid, authToken);
-    console.log('✓ SMS service initialized');
+      if (!accountSid || !accountSid.startsWith('AC')) {
+        console.warn('⚠️ Twilio Account SID is missing or invalid. SMS notifications will be bypassed.');
+        this.twilioClient = null;
+        return;
+      }
+
+      this.twilioClient = twilio(accountSid, authToken);
+      console.log('✓ SMS service initialized');
+    } catch (error) {
+      console.error('❌ Failed to initialize Twilio Service safely:', error.message);
+      this.twilioClient = null;
+    }
   }
 
   /**
@@ -124,6 +132,11 @@ export class NotificationsService {
    */
   async sendSMS(phoneNumber: string, message: string) {
     try {
+      if (!this.twilioClient) {
+        console.warn('⚠️ SMS request dropped because Twilio client is uninitialized.');
+        return { success: false, error: 'SMS engine disabled' };
+      }
+
       const message_response = await this.twilioClient.messages.create({
         body: message,
         from: process.env.TWILIO_PHONE_NUMBER || '+1234567890',
@@ -145,7 +158,6 @@ export class NotificationsService {
     try {
       const numUserId = typeof userId === 'string' ? parseInt(userId) : userId;
       
-      // Get user info
       const user = await this.prisma.user.findUnique({
         where: { id: numUserId },
         select: { id: true, email: true, phone: true },
@@ -155,7 +167,6 @@ export class NotificationsService {
         throw new Error('User not found');
       }
 
-      // Create notification record
       await this.prisma.notification.create({
         data: {
           user: { connect: { id: numUserId } },
@@ -165,7 +176,6 @@ export class NotificationsService {
         },
       } as any);
 
-      // Send based on type
       if (type === 'email' && user.email) {
         return await this.sendEmail(user.email, 'MDG Shoe Laundry Notification', message);
       } else if (type === 'sms' && user.phone) {
@@ -198,7 +208,6 @@ export class NotificationsService {
 
       if (!user) throw new Error('User not found');
 
-      // Send email with formatted order details
       if (user.email) {
         await this.sendOrderConfirmationEmail(user.email, {
           orderNumber: orderDetails.orderNumber,
@@ -208,7 +217,6 @@ export class NotificationsService {
         });
       }
 
-      // Send SMS notification
       if (user.phone) {
         const smsMessage = `✓ Order Confirmed! Order #${orderDetails.orderNumber}. Total: $${orderDetails.totalAmount.toFixed(2)}. Pickup: ${new Date(orderDetails.pickupDate).toLocaleDateString()}. Thank you for choosing MDG Shoe Laundry!`;
         await this.sendSMS(user.phone, smsMessage);

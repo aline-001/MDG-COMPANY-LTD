@@ -3,7 +3,7 @@ import { ServicesService } from './services.service';
 import { CreateServiceDto, UpdateServiceDto } from './dto/service.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { UserRole } from '../generated/prisma';
+import { UserRole } from '@prisma/client';
 import { Reflector } from '@nestjs/core';
 
 @Controller('services')

@@ -5,13 +5,17 @@ const router = Router();
 const prisma = new PrismaClient();
 
 router.post('/', async (req, res) => {
-  const { customerName, pickupLocation } = req.body;
+  const { pickupLocation } = req.body;
 
   try {
     const newOrder = await prisma.order.create({
       data: {
-        customerName,
+        orderNumber: `ORD-${Date.now()}`,
         pickupLocation,
+        pickupDate: new Date(),
+        totalAmount: 0,
+        discount: 0,
+        finalAmount: 0,
         userId: 1, // Temporarily hardcoded until you add auth
       },
     });
@@ -19,7 +23,7 @@ router.post('/', async (req, res) => {
     // Send the phone notification via ntfy
     await fetch('https://ntfy.sh/mdg_shoe_laundry_admin', {
       method: 'POST',
-      body: `New Order: ${customerName} at ${pickupLocation}`,
+      body: `New Order: ${newOrder.orderNumber} at ${pickupLocation}`,
     });
 
     res.status(201).json(newOrder);

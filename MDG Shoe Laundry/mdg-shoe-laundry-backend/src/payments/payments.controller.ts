@@ -47,10 +47,10 @@ export class PaymentsController {
   @UseGuards(AuthGuard)
   async getMyPayments(
     @Request() req: any,
-    @Query('skip') skip = 0,
-    @Query('take') take = 10,
+    @Query('skip') skip: string = '0',
+    @Query('take') take: string = '10',
   ) {
-    return await this.paymentsService.findByUser(req.user.id, parseInt(skip), parseInt(take));
+    return await this.paymentsService.findByUser(req.user.id, parseInt(skip, 10), parseInt(take, 10));
   }
 
   /**
@@ -58,8 +58,11 @@ export class PaymentsController {
    */
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
-  async findAll(@Query('skip') skip = 0, @Query('take') take = 10) {
-    return await this.paymentsService.findAll(parseInt(skip), parseInt(take));
+  async findAll(
+    @Query('skip') skip: string = '0', 
+    @Query('take') take: string = '10'
+  ) {
+    return await this.paymentsService.findAll(parseInt(skip, 10), parseInt(take, 10));
   }
 
   /**

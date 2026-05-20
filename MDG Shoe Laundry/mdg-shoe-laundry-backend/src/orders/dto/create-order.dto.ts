@@ -9,7 +9,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OrderStatus } from '../../generated/prisma';
+import { OrderStatus } from '@prisma/client';
 
 export class CreateShoeDto {
   @IsString()

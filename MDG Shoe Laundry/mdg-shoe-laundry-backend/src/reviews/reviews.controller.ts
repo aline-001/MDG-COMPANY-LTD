@@ -25,7 +25,7 @@ export class ReviewsController {
    * Get all approved reviews (paginated)
    */
   @Get()
-  async findAll(@Query('skip') skip = 0, @Query('take') take = 10) {
+  async findAll(@Query('skip') skip: string = '0', @Query('take') take: string = '10') {
     return await this.reviewsService.findAll(parseInt(skip), parseInt(take));
   }
 

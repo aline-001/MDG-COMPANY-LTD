@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async createUser(email: string, pass: string, phone: string) {
+  async createUser(email: string, pass: string, phone: string, firstName: string, lastName: string) {
     
     const salt = await bcrypt.genSalt(10); // makes the hash unique even if two users have the same password
     const hashedPassword = await bcrypt.hash(pass, salt);
@@ -16,6 +16,8 @@ export class UsersService {
         email: email,
         password: hashedPassword, // Saving the gibberish(encrypted, unknown), not the password
         phone: phone,
+        firstName: firstName,     // Added to satisfy Prisma requirements
+        lastName: lastName,       // Added to satisfy Prisma requirements
       },
     });
   }

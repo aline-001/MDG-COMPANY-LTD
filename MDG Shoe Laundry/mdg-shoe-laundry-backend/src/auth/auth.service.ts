@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException, BadRequestException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserRole } from '../generated/prisma';
 
 export interface JwtPayload {
   sub: number;
