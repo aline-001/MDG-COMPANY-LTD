@@ -29,13 +29,19 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          <div className="relative group">
-            <div className="absolute inset-0 bg-mdg-blue/20 blur-3xl rounded-full group-hover:bg-mdg-blue/30 transition-all" />
-            <img 
-              src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800" 
-              className="relative rounded-[40px] w-full aspect-[4/5] object-cover border border-white/10 shadow-2xl"
-              alt="MDG Craft"
-            />
+          {/* Fixed Container for Landscape Photo Fitting with Increased Height */}
+          <div className="relative group w-full flex items-center justify-center">
+            {/* Ambient Glow Background Effect */}
+            <div className="absolute inset-0 bg-mdg-blue/20 blur-3xl rounded-full group-hover:bg-mdg-blue/30 transition-all scale-95" />
+            
+            {/* Expanded Height Image Wrapper */}
+            <div className="relative w-full h-[380px] sm:h-[440px] lg:h-[500px] rounded-[40px] overflow-hidden border border-white/10 shadow-2xl bg-mdg-navy/50">
+              <img 
+                src="/home_shoes.jpg" 
+                className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-all duration-700"
+                alt="MDG Craft Restoration"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -56,13 +62,13 @@ export default function HomePage() {
       {/* No gap between Section 2 and 3 because the footer starts right where the white ends */}
       <footer className="bg-mdg-navy text-white pt-24 pb-12 px-6">
         <div className="max-w-7xl mx-auto border-t border-white/5 pt-16">
-           <div className="grid md:grid-cols-4 gap-12">
-             {/* Use your previous Footer content here */}
-             <div className="col-span-2">
-                <h2 className="text-2xl font-black tracking-tighter mb-4">MDG <span className="text-mdg-blue">LAUNDRY.</span></h2>
-                <p className="text-gray-500 text-sm max-w-xs uppercase font-bold tracking-widest">Building the premier campus ecosystem.</p>
-             </div>
-           </div>
+          <div className="grid md:grid-cols-4 gap-12">
+            {/* Use your previous Footer content here */}
+            <div className="col-span-2">
+              <h2 className="text-2xl font-black tracking-tighter mb-4">MDG <span className="text-mdg-blue">LAUNDRY.</span></h2>
+              <p className="text-gray-500 text-sm max-w-xs uppercase font-bold tracking-widest">Building the premier campus ecosystem.</p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

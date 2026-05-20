@@ -1,139 +1,236 @@
 'use client';
-import React from 'react';
-import { 
-  ShoppingBag, 
-  Clock, 
-  CheckCircle, 
-  TrendingUp, 
-  Plus,
-  ArrowRight,
-  Package
-} from 'lucide-react';
-// FIX: Import from react-router-dom instead of next/link
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { ArrowRight, AlertCircle, Clock, CheckCircle, Truck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import DashboardLayout from '../../components/layout/DashboardLayout';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import api from '../../lib/api';
 
-const stats = [
-  { label: "Total Orders", value: "12", icon: <Package size={20} />, color: "bg-blue-50 text-mdg-blue" },
-  { label: "Pending Pickup", value: "2", icon: <Clock size={20} />, color: "bg-yellow-50 text-yellow-600" },
-  { label: "In Progress", value: "1", icon: <TrendingUp size={20} />, color: "bg-mdg-lime/10 text-mdg-navy" },
-  { label: "Completed", value: "9", icon: <CheckCircle size={20} />, color: "bg-green-50 text-green-600" },
-];
+interface Order {
+  id: number;
+  orderNumber: string;
+  status: string;
+  total: number;
+  createdAt: string;
+  pickupDate: string;
+  deliveryDate?: string;
+}
 
-const recentOrders = [
-  { id: "MDG-8821", item: "Nike Air Max", service: "Extreme Clean", status: "IN_PROGRESS", date: "May 14, 2026", price: "1500 RWF" },
-  { id: "MDG-8819", item: "Canvas Backpack", service: "Bag Laundry", status: "PENDING", date: "May 13, 2026", price: "1200 RWF" },
-  { id: "MDG-8790", item: "Adidas Forum", service: "Regular Clean", status: "COMPLETED", date: "May 10, 2026", price: "800 RWF" },
-];
-
-const getStatusStyles = (status: string) => {
-  switch (status) {
-    case 'COMPLETED': return 'bg-green-100 text-green-700 border-green-200';
-    case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700 border-blue-200';
-    case 'PENDING': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    default: return 'bg-gray-100 text-gray-700';
-  }
-};
+interface Stats {
+  total: number;
+  pending: number;
+  inProgress: number;
+  completed: number;
+}
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { showNotification } = useNotification();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    total: 0,
+    pending: 0,
+    inProgress: 0,
+    completed: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const previousOrderStatesRef = useRef<{ [key: number]: string }>({});
+
+  // Redirect admins to admin dashboard
+  useEffect(() => {
+    if (user?.role === 'ADMIN') {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await api.get('/orders');
+        const orderList = Array.isArray(res.data) ? res.data : res.data.data || [];
+        
+        // Check for status changes and show notifications
+        orderList.forEach((order: any) => {
+          const previousStatus = previousOrderStatesRef.current[order.id];
+          if (previousStatus && previousStatus !== order.status) {
+            showNotification({
+              title: 'Order Updated',
+              message: `Order #${order.orderNumber} is now ${order.status.replace(/_/g, ' ')}`,
+              type: 'success',
+            });
+          }
+          previousOrderStatesRef.current[order.id] = order.status;
+        });
+        
+        setOrders(orderList);
+
+        // Calculate stats
+        setStats({
+          total: orderList.length,
+          pending: orderList.filter((o: any) => o.status === 'PENDING' || o.status === 'CONFIRMED').length,
+          inProgress: orderList.filter((o: any) => o.status === 'IN_PROGRESS' || o.status === 'READY_FOR_PICKUP').length,
+          completed: orderList.filter((o: any) => o.status === 'COMPLETED').length,
+        });
+      } catch (err) {
+        console.error('Failed to fetch orders:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+
+    // Poll for order updates every 15 seconds
+    const interval = setInterval(fetchOrders, 15000);
+
+    return () => clearInterval(interval);
+  }, [showNotification]);
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+      case 'CONFIRMED':
+        return <Clock size={16} className="text-yellow-600" />;
+      case 'IN_PROGRESS':
+        return <Truck size={16} className="text-blue-600" />;
+      case 'READY_FOR_PICKUP':
+        return <AlertCircle size={16} className="text-purple-600" />;
+      case 'COMPLETED':
+        return <CheckCircle size={16} className="text-green-600" />;
+      default:
+        return <AlertCircle size={16} className="text-gray-600" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+      case 'CONFIRMED':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'READY_FOR_PICKUP':
+        return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'COMPLETED':
+        return 'bg-green-100 text-green-700 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-mdg-navy">Dashboard</h1>
-          <p className="text-mdg-slate font-medium">Welcome back to MDG Empire</p>
+    <DashboardLayout>
+      <div className="space-y-8">
+        {/* Welcome Section */}
+        <div className="mb-12">
+          <h1 className="text-4xl font-black text-mdg-navy tracking-tighter mb-2">
+            Welcome Back, {user?.firstName || 'Guest'}!
+          </h1>
+          <p className="text-mdg-slate text-sm font-bold uppercase tracking-[0.2em]">Here's your order overview</p>
         </div>
-        {/* FIX: Use 'to' instead of 'href' */}
-        <Link 
-          to="/dashboard/new-order" 
-          className="bg-mdg-blue text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-mdg-navy transition-all shadow-lg shadow-mdg-blue/20 w-fit"
-        >
-          <Plus size={20} /> New Order
-        </Link>
-      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div key={stat.label} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
-            <div className={`p-4 rounded-2xl ${stat.color}`}>
-              {stat.icon}
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-bold text-mdg-slate uppercase">Total Orders</p>
+              <AlertCircle className="text-mdg-slate" size={20} />
             </div>
-            <div>
-              <p className="text-xs font-bold text-mdg-slate uppercase tracking-wider">{stat.label}</p>
-              <p className="text-2xl font-black text-mdg-navy">{stat.value}</p>
-            </div>
+            <p className="text-3xl font-black text-mdg-navy">{stats.total}</p>
           </div>
-        ))}
-      </div>
+          <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-bold text-mdg-slate uppercase">Pending Pickup</p>
+              <Clock className="text-yellow-600" size={20} />
+            </div>
+            <p className="text-3xl font-black text-yellow-600">{stats.pending}</p>
+          </div>
+          <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-bold text-mdg-slate uppercase">In Progress</p>
+              <Truck className="text-blue-600" size={20} />
+            </div>
+            <p className="text-3xl font-black text-blue-600">{stats.inProgress}</p>
+          </div>
+          <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-bold text-mdg-slate uppercase">Completed</p>
+              <CheckCircle className="text-green-600" size={20} />
+            </div>
+            <p className="text-3xl font-black text-green-600">{stats.completed}</p>
+          </div>
+        </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Recent Orders Table */}
-        <div className="lg:col-span-2 bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-            <h2 className="font-black text-mdg-navy text-lg uppercase tracking-tight">Recent Activity</h2>
-            {/* FIX: Use 'to' instead of 'href' */}
-            <Link to="/dashboard/orders" className="text-sm font-bold text-mdg-blue hover:underline">View All</Link>
+        {/* Recent Orders Section */}
+        <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-50">
+            <h2 className="font-black text-mdg-navy text-lg uppercase tracking-tight">Recent Orders</h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-mdg-background">
-                  <th className="px-6 py-4 text-xs font-bold text-mdg-navy uppercase tracking-wider">Order ID</th>
-                  <th className="px-6 py-4 text-xs font-bold text-mdg-navy uppercase tracking-wider">Item</th>
-                  <th className="px-6 py-4 text-xs font-bold text-mdg-navy uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-xs font-bold text-mdg-navy uppercase tracking-wider">Price</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-bold text-mdg-navy">{order.id}</td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-bold text-mdg-navy">{order.item}</p>
-                      <p className="text-[10px] text-mdg-slate font-medium uppercase">{order.service}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black border ${getStatusStyles(order.status)}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold text-mdg-navy">{order.price}</td>
+
+          {loading ? (
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mdg-blue mx-auto mb-4"></div>
+              <p className="text-mdg-slate">Loading your orders...</p>
+            </div>
+          ) : orders.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className="px-6 py-4 text-[10px] font-black uppercase text-mdg-slate tracking-widest">Order ID</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase text-mdg-slate tracking-widest">Status</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase text-mdg-slate tracking-widest">Pickup Date</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase text-mdg-slate tracking-widest">Total</th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase text-mdg-slate tracking-widest">Created</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {orders.slice(0, 5).map((order) => (
+                    <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4 font-mono text-sm font-bold text-mdg-blue">#{order.orderNumber}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(order.status)}
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border ${getStatusColor(order.status)}`}>
+                            {order.status.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-mdg-slate">{new Date(order.pickupDate).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 font-bold text-mdg-navy">${order.total?.toFixed(2) || '0.00'}</td>
+                      <td className="px-6 py-4 text-sm text-mdg-slate">{new Date(order.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-12 text-center">
+              <p className="text-mdg-slate font-bold mb-4">No orders yet</p>
+              <button
+                onClick={() => navigate('/dashboard/new-order')}
+                className="inline-flex items-center gap-2 bg-mdg-blue text-white font-bold px-6 py-3 rounded-xl hover:bg-mdg-navy transition-all"
+              >
+                Create Your First Order <ArrowRight size={18} />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Loyalty/Empire Progress Card */}
-        <div className="bg-mdg-navy rounded-[32px] p-8 text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h3 className="text-xl font-black mb-2">Empire Loyalty</h3>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-              You are <span className="text-mdg-lime font-bold">1 order away</span> from your next 25% Cashback reward.
-            </p>
-            
-            {/* Progress Bar */}
-            <div className="h-3 w-full bg-white/10 rounded-full mb-8 overflow-hidden">
-              <div className="h-full bg-mdg-blue w-3/4 rounded-full" />
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-white/5 p-4 rounded-2xl flex items-center gap-4">
-                <div className="bg-mdg-lime text-mdg-navy p-2 rounded-lg font-black text-xs">NEW</div>
-                <p className="text-xs font-bold">Bag Laundry services now available in Bumbogo!</p>
-              </div>
-            </div>
-
-            <button className="w-full mt-8 py-4 bg-mdg-blue rounded-xl font-black text-sm hover:bg-white hover:text-mdg-navy transition-all flex items-center justify-center gap-2">
-              Learn More <ArrowRight size={16} />
+        {/* CTA Button */}
+        {orders.length > 0 && (
+          <div className="text-center">
+            <button
+              onClick={() => navigate('/dashboard/new-order')}
+              className="inline-flex items-center gap-2 bg-mdg-blue text-white font-black px-8 py-4 rounded-2xl hover:bg-mdg-navy transition-all text-lg uppercase tracking-wider"
+            >
+              Create New Order <ArrowRight size={20} />
             </button>
           </div>
-          
-          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-mdg-blue/20 rounded-full blur-3xl" />
-        </div>
+        )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

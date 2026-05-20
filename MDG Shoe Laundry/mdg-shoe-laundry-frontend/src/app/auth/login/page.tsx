@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../../../lib/api'; 
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
-      // Connects to your NestJS User model via the auth endpoint
-      const response = await api.post('/auth/login', { email, password });
-      
-      // Store the JWT token for session management
-      localStorage.setItem('token', response.data.access_token);
-      
-      // Redirect to the main dashboard or home after successful "collabo"
-      navigate('/');
-    } catch (error) {
-      console.error("Login failed:", error);
-      alert("Invalid credentials. Please try again.");
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Login failed:', error);
+      setError(
+        error.response?.data?.message ||
+        'Invalid credentials. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -37,6 +37,12 @@ const Login = () => {
           <p className="text-mdg-slate text-sm font-bold uppercase tracking-widest mt-2">Secure Access to MDG Systems</p>
         </div>
 
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+            <p className="text-red-700 text-sm font-bold">{error}</p>
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <label className="text-[10px] font-black text-mdg-navy uppercase tracking-widest ml-2">Email Address</label>
@@ -46,7 +52,8 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-mdg-background border-2 border-gray-100 p-5 rounded-2xl outline-none focus:border-mdg-blue transition-all font-bold" 
-              placeholder="name@campus.com"
+              placeholder="name@example.com"
+              disabled={loading}
             />
           </div>
 
@@ -59,17 +66,24 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-mdg-background border-2 border-gray-100 p-5 rounded-2xl outline-none focus:border-mdg-blue transition-all font-bold" 
               placeholder="••••••••"
+              disabled={loading}
             />
           </div>
 
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-mdg-navy text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-mdg-blue transition-all shadow-lg shadow-mdg-blue/20"
+            className="w-full bg-mdg-navy text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-mdg-blue transition-all shadow-lg shadow-mdg-blue/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Authenticating...' : 'Login to System'}
           </button>
         </form>
+
+        <div className="mt-8 pt-8 border-t border-gray-100 text-center">
+          <p className="text-sm text-mdg-slate">
+            Don't have an account? <Link to="/auth/register" className="text-mdg-blue font-bold hover:underline">Register here</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

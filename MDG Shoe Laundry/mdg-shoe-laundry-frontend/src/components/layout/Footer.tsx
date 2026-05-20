@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // FIXED: Importing from your real project framework
 import { MapPin, Phone, Mail } from 'lucide-react';
 
-// Changed to default export to match your App.tsx import
-const Footer = () => {
+export const Footer = () => {
   return (
     <footer className="bg-mdg-navy pt-20 pb-10 px-6 text-white mt-auto">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-20">
@@ -24,7 +23,7 @@ const Footer = () => {
         <div>
           <h4 className="font-bold mb-6 text-mdg-lime uppercase tracking-widest text-xs">Services</h4>
           <ul className="space-y-4 text-sm text-gray-400">
-            {/* FIX: Changed href to to */}
+            {/* FIXED: Changed href back to 'to' so react-router-dom processes navigation paths */}
             <li><Link to="/services" className="hover:text-white transition-colors">Shoe Laundry</Link></li>
             <li><Link to="/services" className="hover:text-white transition-colors">Bag Laundry</Link></li>
             <li><Link to="/services" className="hover:text-white transition-colors">Premium Care</Link></li>
@@ -69,5 +68,3 @@ const Footer = () => {
     </footer>
   );
 };
-
-export default Footer;
