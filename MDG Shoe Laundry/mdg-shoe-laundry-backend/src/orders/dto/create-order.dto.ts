@@ -7,9 +7,10 @@ import {
   Min,
   IsDefined,
   IsDateString,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, ItemType } from '@prisma/client';
 
 export class CreateShoeDto {
   @IsString()
@@ -45,6 +46,9 @@ export class CreateOrderDto {
 
   @IsDateString()
   pickupDate: string;
+
+  @IsEnum(ItemType)
+  itemType: ItemType; // SHOES or BAG
 
   @IsOptional()
   @IsNumber()

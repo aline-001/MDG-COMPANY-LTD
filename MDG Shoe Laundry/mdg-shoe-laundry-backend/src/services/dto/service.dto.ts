@@ -1,4 +1,5 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsBoolean, IsEnum, Min } from 'class-validator';
+import { ItemType } from '@prisma/client';
 
 export class CreateServiceDto {
   @IsString()
@@ -9,11 +10,18 @@ export class CreateServiceDto {
 
   @IsNumber()
   @Min(0)
-  price: number;
+  basePrice: number;
 
+  @IsEnum(ItemType)
+  category: ItemType; // SHOES or BAG
+
+  @IsOptional()
   @IsNumber()
   @Min(1)
-  estimatedDays: number;
+  quantity?: number;
+
+  @IsString()
+  quantityLabel: string;
 
   @IsOptional()
   @IsString()
@@ -36,12 +44,20 @@ export class UpdateServiceDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  price?: number;
+  basePrice?: number;
+
+  @IsOptional()
+  @IsEnum(ItemType)
+  category?: ItemType;
 
   @IsOptional()
   @IsNumber()
   @Min(1)
-  estimatedDays?: number;
+  quantity?: number;
+
+  @IsOptional()
+  @IsString()
+  quantityLabel?: string;
 
   @IsOptional()
   @IsString()

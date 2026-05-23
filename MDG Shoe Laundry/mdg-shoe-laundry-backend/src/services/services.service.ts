@@ -21,7 +21,7 @@ export class ServicesService {
   async findAll(includeInactive = false) {
     return await this.prisma.service.findMany({
       where: includeInactive ? {} : { isActive: true },
-      orderBy: { price: 'asc' },
+      orderBy: { basePrice: 'asc' },
     });
   }
 

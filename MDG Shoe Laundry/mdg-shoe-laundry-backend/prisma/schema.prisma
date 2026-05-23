@@ -26,6 +26,11 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum ItemType {
+  SHOES
+  BAG
+}
+
 enum PaymentStatus {
   PENDING
   COMPLETED
@@ -63,6 +68,10 @@ model User {
   isActive              Boolean   @default(true)
   emailVerified         Boolean   @default(false)
   
+  // Password reset
+  passwordResetToken    String?
+  passwordResetExpiry   DateTime?
+  
   // Relations
   orders                Order[]
   payments              Payment[]
@@ -82,10 +91,12 @@ model User {
 // Service Model - Laundry services offered
 model Service {
   id                    Int       @id @default(autoincrement())
-  name                  String    // e.g., "Premium Wash", "Standard Clean"
+  name                  String    // e.g., "Regular Cleaning", "Leather Bags"
   description           String
-  price                 Float
-  estimatedDays         Int       // Estimated days for completion
+  category              ItemType  // SHOES or BAG
+  basePrice             Float     // Base price in RWF
+  quantity              Int       @default(1) // Number of items (1 pair, 2 pairs, 1 bag, etc)
+  quantityLabel         String    // e.g., "per pair", "per bag", "2 pairs"
   icon                  String?   // Icon URL or identifier
   isActive              Boolean   @default(true)
   
@@ -97,13 +108,16 @@ model Service {
   updatedAt             DateTime  @updatedAt
   
   @@index([isActive])
+  @@index([category])
 }
 
 // Order Model - Customer orders
 model Order {
   id                    Int       @id @default(autoincrement())
   orderNumber           String    @unique
+  orderSequence         Int       @unique @default(autoincrement())  // For MDG-XXX format
   status                OrderStatus @default(PENDING)
+  itemType              ItemType  // What is being cleaned: SHOES or BAG
   
   // Customer info
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)

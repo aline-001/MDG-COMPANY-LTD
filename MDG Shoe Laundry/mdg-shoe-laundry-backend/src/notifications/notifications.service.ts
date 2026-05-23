@@ -319,4 +319,96 @@ export class NotificationsService {
   async sendCustomerSMS(phoneNumber: string, message: string) {
     return this.sendSMS(phoneNumber, message);
   }
+
+  /**
+   * Send order notification to admin email
+   */
+  async sendAdminOrderNotification(orderDetails: {
+    orderNumber: string;
+    customerName: string;
+    customerEmail: string;
+    totalAmount: number;
+    services: string[];
+    pickupLocation: string;
+    pickupDate: Date;
+    orderDate: Date;
+  }) {
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL || 'albertmendolza295@gmail.com';
+
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #0E8FDD 0%, #0A5FA0 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">📦 New Order Received</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">A new order has been placed on MDG Shoe Laundry</p>
+          </div>
+
+          <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2 style="color: #0E8FDD; margin-top: 0; font-size: 20px;">Order Details</h2>
+            
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 6px; margin: 20px 0;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Order Number:</strong></td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #0E8FDD; font-weight: bold; font-size: 18px;">${orderDetails.orderNumber}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Customer Name:</strong></td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${orderDetails.customerName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Customer Email:</strong></td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">
+                    <a href="mailto:${orderDetails.customerEmail}" style="color: #0E8FDD; text-decoration: none;">${orderDetails.customerEmail}</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Services:</strong></td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${orderDetails.services.join(', ')}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Total Amount:</strong></td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #B4E74F; font-weight: bold;">$${orderDetails.totalAmount.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Pickup Location:</strong></td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${orderDetails.pickupLocation}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;"><strong>Pickup Date:</strong></td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${new Date(orderDetails.pickupDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0;"><strong>Order Date:</strong></td>
+                  <td style="padding: 10px 0; text-align: right;">${new Date(orderDetails.orderDate).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="background-color: #dbeafe; border-left: 4px solid #0E8FDD; padding: 15px; border-radius: 4px; margin-top: 20px;">
+              <p style="margin: 0; color: #0369a1;"><strong>ℹ️ Action Required</strong></p>
+              <p style="margin: 10px 0 0 0; color: #0369a1; font-size: 14px;">
+                Please log in to the admin dashboard to view the full order details and manage this order.
+              </p>
+            </div>
+
+            <p style="color: #6b7280; margin-top: 30px; text-align: center; font-size: 14px;">
+              This is an automated notification from MDG Shoe Laundry system.
+            </p>
+          </div>
+
+          <div style="text-align: center; padding: 20px 0; color: #6b7280; font-size: 12px;">
+            <p style="margin: 0;">© 2026 MDG Shoe Laundry. All rights reserved.</p>
+          </div>
+        </div>
+      `;
+
+      await this.sendEmail(adminEmail, `New Order #${orderDetails.orderNumber} - MDG Shoe Laundry`, htmlContent);
+
+      return { success: true, message: 'Admin notification sent' };
+    } catch (error) {
+      console.error('Error sending admin order notification:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }

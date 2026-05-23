@@ -5,7 +5,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 router.post('/', async (req, res) => {
-  const { pickupLocation } = req.body;
+  const { pickupLocation, itemType } = req.body;
 
   try {
     const newOrder = await prisma.order.create({
@@ -17,6 +17,7 @@ router.post('/', async (req, res) => {
         discount: 0,
         finalAmount: 0,
         userId: 1, // Temporarily hardcoded until you add auth
+        itemType: itemType || 'SHOES', // Default to SHOES if not provided
       },
     });
 

@@ -32,16 +32,15 @@ export class OrdersService {
    * Create a new order
    */
   async create(userId: number, data: CreateOrderDto) {
-    // Generate unique order number
-    const orderNumber = `ORD-${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(7)
-      .toUpperCase()}`;
-
     try {
+      // Get the latest order sequence to generate MDG format (MDG-001, MDG-002, etc.)
+      // The database will auto-increment the orderSequence, but we need to format it
+      // We'll let Prisma handle the sequence generation and format it in the response
+      
       const order = await this.prisma.order.create({
         data: {
-          orderNumber,
+          orderNumber: '', // Placeholder, will be set after insert to use orderSequence
+          itemType: data.itemType, // Track if this is for shoes or bag
           user: { connect: { id: userId } },
           pickupLocation: data.pickupLocation,
           deliveryLocation: data.deliveryLocation || data.pickupLocation,
@@ -83,25 +82,67 @@ export class OrdersService {
               email: true,
               firstName: true,
               lastName: true,
+              phone: true,
+            },
+          },
+        },
+      });
+
+      // Format order number as MDG-XXX (padded with zeros)
+      const paddedSequence = String(order.orderSequence || order.id).padStart(3, '0');
+      const formattedOrderNumber = `MDG-${paddedSequence}`;
+
+      // Update the order with the formatted order number
+      const updatedOrder = await this.prisma.order.update({
+        where: { id: order.id },
+        data: { orderNumber: formattedOrderNumber },
+        include: {
+          shoes: true,
+          services: {
+            include: {
+              service: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              phone: true,
             },
           },
         },
       });
 
       // Get service names for the confirmation
-      const serviceNames = order.services.map((os) => os.service?.name || 'Service').filter(Boolean);
+      const serviceNames = updatedOrder.services
+        .map((os) => os.service?.name || 'Service')
+        .filter(Boolean);
 
-      // Send comprehensive order confirmation (email + SMS)
+      // Send comprehensive order confirmation (email + SMS) to customer
       await this.notificationsService.sendOrderConfirmation(userId, {
-        orderNumber: order.orderNumber,
-        totalAmount: order.totalAmount,
-        pickupDate: order.pickupDate,
+        orderNumber: updatedOrder.orderNumber,
+        totalAmount: updatedOrder.totalAmount,
+        pickupDate: updatedOrder.pickupDate,
         services: serviceNames,
-        customerName: `${order.user?.firstName} ${order.user?.lastName}`,
-        id: order.id,
+        customerName: `${updatedOrder.user?.firstName} ${updatedOrder.user?.lastName}`,
+        id: updatedOrder.id,
       });
 
-      return order;
+      // Send admin notification email
+      await this.notificationsService.sendAdminOrderNotification({
+        orderNumber: updatedOrder.orderNumber,
+        customerName: `${updatedOrder.user?.firstName} ${updatedOrder.user?.lastName}`,
+        customerEmail: updatedOrder.user?.email || '',
+        totalAmount: updatedOrder.totalAmount,
+        services: serviceNames,
+        pickupLocation: updatedOrder.pickupLocation,
+        pickupDate: updatedOrder.pickupDate,
+        orderDate: updatedOrder.createdAt,
+      });
+
+      return updatedOrder;
     } catch (error) {
       console.error('Error creating order:', error);
       throw new BadRequestException('Failed to create order');

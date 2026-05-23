@@ -20,13 +20,13 @@ export default function CreateOrder() {
     try {
       // This maps directly to your Prisma Order and Shoe models
       const response = await api.post('/orders', {
-        customerName: formData.name,
         pickupLocation: "Bumbogo Facility, Gasabo", // Your verified location
-        status: "PENDING", 
-        shoe: {
-          type: formData.shoeType,
-          service: formData.serviceType,
-        }
+        pickupDate: new Date().toISOString(), // TODO: Add date picker to form
+        notes: `${formData.shoeType} - ${formData.serviceType}`,
+        shoes: [{
+          brand: formData.shoeType,
+          model: formData.serviceType,
+        }],
       });
 
       console.log("Order Stored:", response.data);

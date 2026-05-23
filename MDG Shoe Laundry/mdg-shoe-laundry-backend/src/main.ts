@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -13,6 +14,15 @@ async function bootstrap() {
 
   // 2. SET THE PREFIX SO YOUR URL IS /api/orders
   app.setGlobalPrefix('api');
+
+  // 3. ENABLE GLOBAL VALIDATION PIPE
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   const PORT = 5000;
   await app.listen(PORT);
