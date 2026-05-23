@@ -1,8 +1,11 @@
 'use client';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, ShieldCheck, LocateFixed } from 'lucide-react';
 
 export default function HomePage() {
+  const navigate = useNavigate();
+
   return (
     // Wrapper must match the Hero background to kill the top/bottom white gaps
     <div className="bg-mdg-navy min-h-screen font-sans selection:bg-mdg-blue selection:text-white">
@@ -23,7 +26,10 @@ export default function HomePage() {
               Professional shoe and bag restoration. We restore your essentials to factory condition starting from <span className="text-white font-bold">800 RWF</span>.
             </p>
             <div className="flex gap-4">
-              <button className="bg-mdg-blue text-white px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all">
+              <button 
+                onClick={() => navigate('/dashboard/new-order')}
+                className="bg-mdg-blue text-white px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all"
+              >
                 Book Pickup
               </button>
             </div>

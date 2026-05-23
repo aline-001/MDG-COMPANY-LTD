@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, AlertCircle, Brush, Sparkles, Zap, Sun, Gift, ShoppingBag, Backpack, Briefcase, Package } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Brush, Sparkles, Zap, Sun, Gift, ShoppingBag, Backpack, Briefcase, Package, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -261,7 +261,7 @@ export default function NewOrderPage() {
             <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
               <h2 className="text-xl font-black text-mdg-navy mb-6">What Would You Like to Clean?</h2>
               
-              <div className="flex gap-4">
+              <div className="grid md:grid-cols-2 gap-6">
                 {/* Shoes Category */}
                 <button
                   type="button"
@@ -269,13 +269,22 @@ export default function NewOrderPage() {
                     setCategory('SHOES');
                     setSelectedServices([]);
                   }}
-                  className={`flex-1 px-8 py-4 rounded-lg font-bold text-lg transition-all ${
+                  className={`p-8 rounded-2xl border-2 transition-all text-center ${
                     category === 'SHOES'
-                      ? 'bg-mdg-navy text-white'
-                      : 'bg-gray-200 text-mdg-navy hover:bg-gray-300'
+                      ? 'border-mdg-blue bg-blue-50'
+                      : 'border-gray-200 hover:border-mdg-blue'
                   }`}
                 >
-                  Shoe Laundry
+                  <Sparkles size={64} className="text-mdg-blue mx-auto mb-4" />
+                  <h3 className="text-2xl font-black text-mdg-navy">Shoe Laundry</h3>
+                  <p className="text-sm text-mdg-slate mt-2">
+                    Professional cleaning for all shoe types. Single pair or twin deal!
+                  </p>
+                  {category === 'SHOES' && (
+                    <div className="mt-4 inline-flex items-center gap-2 text-mdg-blue font-bold">
+                      <Check size={20} /> Selected
+                    </div>
+                  )}
                 </button>
 
                 {/* Bags Category */}
@@ -285,13 +294,22 @@ export default function NewOrderPage() {
                     setCategory('BAG');
                     setSelectedServices([]);
                   }}
-                  className={`flex-1 px-8 py-4 rounded-lg font-bold text-lg transition-all ${
+                  className={`p-8 rounded-2xl border-2 transition-all text-center ${
                     category === 'BAG'
-                      ? 'bg-mdg-navy text-white'
-                      : 'bg-gray-200 text-mdg-navy hover:bg-gray-300'
+                      ? 'border-mdg-blue bg-blue-50'
+                      : 'border-gray-200 hover:border-mdg-blue'
                   }`}
                 >
-                  Bag Cleaning
+                  <Backpack size={64} className="text-mdg-blue mx-auto mb-4" />
+                  <h3 className="text-2xl font-black text-mdg-navy">Bag Cleaning</h3>
+                  <p className="text-sm text-mdg-slate mt-2">
+                    Expert cleaning for leather, canvas, lace & more! 25% cash back offer!
+                  </p>
+                  {category === 'BAG' && (
+                    <div className="mt-4 inline-flex items-center gap-2 text-mdg-blue font-bold">
+                      <Check size={20} /> Selected
+                    </div>
+                  )}
                 </button>
               </div>
             </div>
@@ -318,13 +336,12 @@ export default function NewOrderPage() {
                           className="border border-gray-200 rounded-2xl p-6 hover:border-mdg-blue transition-all"
                         >
                           <div className="flex items-start justify-between gap-4">
-                            <IconComponent size={32} className="text-mdg-blue flex-shrink-0" />
                             <div className="flex-1">
                               <h3 className="text-lg font-black text-mdg-navy">{service.name}</h3>
                               <p className="text-sm text-mdg-slate mt-2">{service.description}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-2xl font-black text-mdg-blue">{service.basePrice.toLocaleString()} RWF</p>
+                              <p className="text-2xl font-black text-mdg-navy">{service.basePrice.toLocaleString()} RWF</p>
                               <p className="text-xs text-mdg-slate mt-1">{service.quantityLabel}</p>
                             </div>
                           </div>
@@ -333,7 +350,7 @@ export default function NewOrderPage() {
                           <button
                             type="button"
                             onClick={() => handleAddService(service.id)}
-                            className="mt-4 w-full py-2 bg-mdg-blue text-white rounded-xl font-bold hover:bg-mdg-navy transition-all"
+                            className="mt-4 w-full py-2 bg-mdg-navy text-white rounded-xl font-bold hover:bg-[rgb(8,22,40)] transition-all"
                           >
                             Add to Order
                           </button>

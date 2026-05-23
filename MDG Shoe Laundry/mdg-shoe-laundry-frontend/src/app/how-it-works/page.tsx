@@ -63,7 +63,7 @@ export default function HowItWorks() {
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
-      <section className="bg-mdg-navy py-24 px-6 relative overflow-hidden text-center">
+      <section className="bg-mdg-navy py-24 px-6 pt-32 relative overflow-hidden text-center">
         <div className="max-w-7xl mx-auto relative z-10">
           <h1 className="text-4xl md:text-6xl font-black text-white mb-6">
             A Simple, <span className="text-mdg-blue">Professional Process</span>

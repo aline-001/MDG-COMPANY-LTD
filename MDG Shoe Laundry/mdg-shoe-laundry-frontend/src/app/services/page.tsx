@@ -48,7 +48,7 @@ export default function ServicesPage() {
   return (
     <div className="bg-mdg-background min-h-screen">
       {/* Header Section */}
-      <section className="bg-mdg-navy py-20 px-6 text-center relative overflow-hidden">
+      <section className="bg-mdg-navy py-20 px-6 pt-32 text-center relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[url('/grid.svg')] opacity-10" />
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
