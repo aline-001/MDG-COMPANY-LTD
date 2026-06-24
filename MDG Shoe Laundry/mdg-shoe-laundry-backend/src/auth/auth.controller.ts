@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Request, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Request, HttpCode, Put, Patch } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { RegisterDto, LoginDto, RefreshTokenDto, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
@@ -50,11 +50,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard)
   async getCurrentUser(@Request() req: any) {
-    return {
-      id: req.user.sub,
-      email: req.user.email,
-      role: req.user.role,
-    };
+    return await this.authService.getCurrentUser(req.user.sub);
   }
 
   /**
@@ -85,5 +81,33 @@ export class AuthController {
   @HttpCode(200)
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return await this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.newPassword);
+  }
+
+  /**
+   * PUT /auth/profile
+   * Update current user profile (requires auth)
+   */
+  @Put('profile')
+  @UseGuards(AuthGuard)
+  @HttpCode(200)
+  async updateProfile(
+    @Request() req: any,
+    @Body() updateData: { firstName?: string; lastName?: string; phone?: string; address?: string; city?: string; zipCode?: string }
+  ) {
+    return await this.authService.updateProfile(req.user.sub, updateData);
+  }
+
+  /**
+   * POST /auth/change-password
+   * Change password (requires auth)
+   */
+  @Post('change-password')
+  @UseGuards(AuthGuard)
+  @HttpCode(200)
+  async changePassword(
+    @Request() req: any,
+    @Body() data: { oldPassword: string; newPassword: string }
+  ) {
+    return await this.authService.changePassword(req.user.sub, data.oldPassword, data.newPassword);
   }
 }

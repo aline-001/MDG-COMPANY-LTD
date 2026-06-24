@@ -46,6 +46,8 @@ export default function NewOrderPage() {
   const [category, setCategory] = useState<OrderCategory>(null);
   const [selectedServices, setSelectedServices] = useState<{ serviceId: number; quantity: number }[]>([]);
   const [pickupDate, setPickupDate] = useState('');
+  const [pickupLocation, setPickupLocation] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [notes, setNotes] = useState('');
 
   // Redirect admins to admin dashboard
@@ -186,12 +188,33 @@ export default function NewOrderPage() {
       return;
     }
 
+    if (!pickupLocation.trim()) {
+      setError('Please enter the pickup location');
+      showNotification({
+        title: 'Error',
+        message: 'Please enter the pickup location',
+        type: 'error',
+      });
+      return;
+    }
+
+    if (!phoneNumber.trim()) {
+      setError('Please enter your phone number');
+      showNotification({
+        title: 'Error',
+        message: 'Please enter your phone number',
+        type: 'error',
+      });
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const orderData = {
-        pickupLocation: 'MDG Laundry Center',
+        pickupLocation: pickupLocation,
         pickupDate: new Date(pickupDate).toISOString(),
+        phoneNumber: phoneNumber,
         notes,
         itemType: category, // SHOES or BAG
         totalAmount: totalPrice,
@@ -275,7 +298,7 @@ export default function NewOrderPage() {
                       : 'border-gray-200 hover:border-mdg-blue'
                   }`}
                 >
-                  <Sparkles size={64} className="text-mdg-blue mx-auto mb-4" />
+                  <img src="/shoe_laundry_logo.jpg" alt="Shoe Laundry" className="w-16 h-16 mx-auto mb-4 object-cover rounded-full" />
                   <h3 className="text-2xl font-black text-mdg-navy">Shoe Laundry</h3>
                   <p className="text-sm text-mdg-slate mt-2">
                     Professional cleaning for all shoe types. Single pair or twin deal!
@@ -337,7 +360,10 @@ export default function NewOrderPage() {
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
-                              <h3 className="text-lg font-black text-mdg-navy">{service.name}</h3>
+                              <div className="flex items-center gap-3 mb-4">
+                                <IconComponent size={28} className="text-mdg-blue" />
+                                <h3 className="text-lg font-black text-mdg-navy">{service.name}</h3>
+                              </div>
                               <p className="text-sm text-mdg-slate mt-2">{service.description}</p>
                             </div>
                             <div className="text-right">
@@ -370,6 +396,34 @@ export default function NewOrderPage() {
             {category && (
               <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
                 <h2 className="text-xl font-black text-mdg-navy">Order Details</h2>
+
+                <div>
+                  <label className="text-sm font-bold text-mdg-navy uppercase mb-2 block">Pickup Location *</label>
+                  <input
+                    type="text"
+                    value={pickupLocation}
+                    onChange={(e) => setPickupLocation(e.target.value)}
+                    required
+                    disabled={submitting}
+                    placeholder="Where should we pick up your items? (e.g., Home Address, Office, Campus)"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-mdg-blue outline-none disabled:opacity-50"
+                  />
+                  <p className="text-xs text-mdg-slate mt-1">Tell us where we should pick up your shoes or bags</p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-bold text-mdg-navy uppercase mb-2 block">Phone Number *</label>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    required
+                    disabled={submitting}
+                    placeholder="Your phone number (e.g., +250788123456 or 0788123456)"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-mdg-blue outline-none disabled:opacity-50"
+                  />
+                  <p className="text-xs text-mdg-slate mt-1">We'll use this to contact you if we have any questions</p>
+                </div>
 
                 <div>
                   <label className="text-sm font-bold text-mdg-navy uppercase mb-2 block">Pickup Date *</label>

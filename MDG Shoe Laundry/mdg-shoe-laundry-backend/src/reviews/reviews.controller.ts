@@ -18,7 +18,7 @@ export class ReviewsController {
     @Param('orderId') orderId: string,
     @Body() createReviewDto: CreateReviewDto,
   ) {
-    return await this.reviewsService.create(req.user.id, parseInt(orderId), createReviewDto);
+    return await this.reviewsService.create(req.user.sub, parseInt(orderId), createReviewDto);
   }
 
   /**
@@ -43,7 +43,7 @@ export class ReviewsController {
   @Get('my-reviews')
   @UseGuards(AuthGuard)
   async getMyReviews(@Request() req: any) {
-    return await this.reviewsService.findByUser(req.user.id);
+    return await this.reviewsService.findByUser(req.user.sub);
   }
 
   /**
@@ -64,7 +64,7 @@ export class ReviewsController {
     @Param('id') id: string,
     @Body() updateReviewDto: UpdateReviewDto,
   ) {
-    return await this.reviewsService.update(req.user.id, parseInt(id), updateReviewDto);
+    return await this.reviewsService.update(req.user.sub, parseInt(id), updateReviewDto);
   }
 
   /**
@@ -73,7 +73,7 @@ export class ReviewsController {
   @Delete(':id')
   @UseGuards(AuthGuard)
   async remove(@Request() req: any, @Param('id') id: string) {
-    return await this.reviewsService.remove(req.user.id, parseInt(id));
+    return await this.reviewsService.remove(req.user.sub, parseInt(id));
   }
 
   /**

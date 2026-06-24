@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // FIXED: Importing from your real project framework
+import { Link } from 'react-router-dom'; // FIXed: Importing from your real project framework
 import { MapPin, Phone, Mail } from 'lucide-react';
 
 export const Footer = () => {
@@ -38,7 +37,8 @@ export const Footer = () => {
             <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
             <li><Link to="/how-it-works" className="hover:text-white transition-colors">Our Process</Link></li>
             <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-            <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+            <li><Link to="/legal/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link></li>
+            <li><Link to="/legal/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
           </ul>
         </div>
 

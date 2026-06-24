@@ -16,8 +16,8 @@ export interface AuthContextType {
   refreshToken: string | null;
   loading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string, phone: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ success: boolean }>;
+  register: (email: string, password: string, firstName: string, lastName: string, phone: string) => Promise<{ success: boolean }>;
   logout: () => void;
   setUser: (user: User | null) => void;
 }
@@ -50,18 +50,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('🔐 Attempting login for:', email);
       const response = await api.post('/auth/login', { email, password });
       const { access_token, refresh_token, user: userData } = response.data;
 
+      console.log('✓ Login successful, received token');
+      
       setToken(access_token);
       setRefreshToken(refresh_token);
       setUser(userData);
 
+      // Ensure token is stored in localStorage
       localStorage.setItem('token', access_token);
       localStorage.setItem('refreshToken', refresh_token);
       localStorage.setItem('user', JSON.stringify(userData));
-    } catch (error) {
-      console.error('Login error:', error);
+      
+      console.log('✓ Token and user stored in localStorage');
+      console.log('📝 Stored token:', access_token.substring(0, 20) + '...');
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error('❌ Login error:', error.response?.data || error.message);
       throw error;
     }
   };
@@ -74,6 +83,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     phone: string,
   ) => {
     try {
+      console.log('📝 Attempting registration for:', email);
       const response = await api.post('/auth/register', {
         email,
         password,
@@ -83,15 +93,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       const { access_token, refresh_token, user: userData } = response.data;
 
+      console.log('✓ Registration successful, received token');
+      
       setToken(access_token);
       setRefreshToken(refresh_token);
       setUser(userData);
 
+      // Ensure token is stored in localStorage
       localStorage.setItem('token', access_token);
       localStorage.setItem('refreshToken', refresh_token);
       localStorage.setItem('user', JSON.stringify(userData));
-    } catch (error) {
-      console.error('Register error:', error);
+      
+      console.log('✓ Token and user stored in localStorage');
+      console.log('📝 Stored token:', access_token.substring(0, 20) + '...');
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error('❌ Registration error:', error.response?.data || error.message);
       throw error;
     }
   };

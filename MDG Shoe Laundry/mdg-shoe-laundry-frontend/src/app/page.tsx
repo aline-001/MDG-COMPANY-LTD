@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, ShieldCheck, LocateFixed } from 'lucide-react';
+import { Zap, ShieldCheck, LocateFixed } from 'lucide-react';
 
 export default function HomePage() {
   const navigate = useNavigate();

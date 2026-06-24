@@ -47,9 +47,9 @@ async function main() {
           emailVerified: true,
         },
       });
-      console.log(`✅ Admin user created: ${user.email} (Password: ${defaultPassword})`);
+      console.log(`Admin user created: ${user.email} (Password: ${defaultPassword})`);
     } else {
-      console.log(`⏭️  Admin user already exists: ${existingUser.email}`);
+      console.log(`Admin user already exists: ${existingUser.email}`);
     }
   }
 
@@ -83,7 +83,7 @@ async function main() {
       name: 'Regular Cleaning',
       description: 'Standard shoe cleaning with brush and water wash. Ranges from 800–1,000 RWF based on shoe condition.',
       category: ItemType.SHOES,
-      basePrice: 1000, // RWF per pair
+      basePrice: 800, // RWF per pair
       quantity: 1,
       quantityLabel: 'per pair',
     },
@@ -91,7 +91,7 @@ async function main() {
       name: 'Medium Cleaning',
       description: 'Deeper clean for moderately soiled shoes. Ranges from 800–1,000 RWF based on condition.',
       category: ItemType.SHOES,
-      basePrice: 1000, // RWF per pair
+      basePrice: 800, // RWF per pair
       quantity: 1,
       quantityLabel: 'per pair',
     },
@@ -124,7 +124,7 @@ async function main() {
       name: 'Leather Bags',
       description: 'Expert cleaning and conditioning for leather bags. Includes protection treatment. 2,000 RWF',
       category: ItemType.BAG,
-      basePrice: 2000, // RWF per bag
+      basePrice: 1500, // RWF per bag
       quantity: 1,
       quantityLabel: 'per bag',
     },
@@ -132,7 +132,7 @@ async function main() {
       name: 'Canvas Bags',
       description: 'Professional cleaning for canvas bags with stain removal. 1,500 RWF',
       category: ItemType.BAG,
-      basePrice: 1500, // RWF per bag
+      basePrice: 1200, // RWF per bag
       quantity: 1,
       quantityLabel: 'per bag',
     },
@@ -148,7 +148,7 @@ async function main() {
       name: 'Other Bag Types',
       description: 'Cleaning for any other bag type (nylon, synthetic, etc). Professional treatment. 2,000 RWF',
       category: ItemType.BAG,
-      basePrice: 2000, // RWF per bag
+      basePrice: 1200, // RWF per bag
       quantity: 1,
       quantityLabel: 'per bag',
     },
@@ -166,9 +166,16 @@ async function main() {
           isActive: true,
         },
       });
-      console.log(`✅ Service created: ${serviceData.name} (${serviceData.basePrice} RWF)`);
+      console.log(` Service created: ${serviceData.name} (${serviceData.basePrice} RWF)`);
     } else {
-      console.log(`⏭️  Service already exists: ${serviceData.name}`);
+      await prisma.service.update({
+        where: { id: existingService.id },
+        data: {
+          ...serviceData,
+          isActive: true,
+        },
+      });
+      console.log(`🔄 Service updated: ${serviceData.name} (${serviceData.basePrice} RWF)`);
     }
   }
 }

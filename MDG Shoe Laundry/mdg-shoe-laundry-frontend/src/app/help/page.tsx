@@ -1,10 +1,9 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { LifeBuoy, MessageCircle, Sparkles } from 'lucide-react';
 
 export default function HelpPage() {
   return (
-    <div className="bg-white min-h-screen pt-24 px-6 pb-20">
+    <div className="bg-white min-h-screen pt-28 md:pt-32 px-6 pb-20">
       <div className="max-w-6xl mx-auto space-y-12">
         <section className="rounded-[40px] border border-gray-100 bg-mdg-background p-12 shadow-sm">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">

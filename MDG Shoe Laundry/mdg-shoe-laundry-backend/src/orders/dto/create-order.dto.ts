@@ -44,6 +44,10 @@ export class CreateOrderDto {
   @IsString()
   deliveryLocation?: string;
 
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string; // Customer phone number for contact
+
   @IsDateString()
   pickupDate: string;
 
@@ -83,6 +87,10 @@ export class UpdateOrderDto {
   @IsOptional()
   @IsString()
   deliveryLocation?: string;
+
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
 
   @IsOptional()
   @IsDateString()

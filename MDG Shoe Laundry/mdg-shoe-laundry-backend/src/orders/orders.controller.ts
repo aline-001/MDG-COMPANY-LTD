@@ -28,7 +28,25 @@ export class OrdersController {
   @Post()
   @UseGuards(AuthGuard)
   async create(@Request() req: any, @Body() createOrderDto: CreateOrderDto) {
-    return await this.ordersService.create(req.user.id, createOrderDto);
+    console.log('Order Creation Request');
+    console.log('  User ID:', req.user?.sub);
+    console.log('  User email:', req.user?.email);
+    console.log('  Order data:', createOrderDto);
+    
+    if (!req.user) {
+      console.error('No user found in request after AuthGuard');
+      throw new Error('User not authenticated');
+    }
+    
+    try {
+      // Use req.user.sub instead of req.user.id (JWT payload uses 'sub' for subject/user ID)
+      const result = await this.ordersService.create(req.user.sub, createOrderDto);
+      console.log('✓ Order created successfully:', result.orderNumber);
+      return result;
+    } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
   }
 
   /**
@@ -42,7 +60,7 @@ export class OrdersController {
     @Query('take') take: string = '10',
   ) {
     // If customer, only return their orders
-    const userId = req.user.role === 'CUSTOMER' ? req.user.id : undefined;
+    const userId = req.user.role === 'CUSTOMER' ? req.user.sub : undefined;
     return await this.ordersService.findAll(userId, parseInt(skip, 10), parseInt(take, 10));
   }
 
@@ -62,12 +80,16 @@ export class OrdersController {
   async trackOrder(@Param('orderNumber') orderNumber: string) {
     const order = await this.ordersService.findByOrderNumber(orderNumber);
     return {
+      id: order.id,
       orderNumber: order.orderNumber,
       status: order.status,
       pickupDate: order.pickupDate,
       deliveryDate: order.deliveryDate,
       completionDate: order.completionDate,
       isPaid: order.isPaid,
+      pickupLocation: order.pickupLocation,
+      customerName: order.user ? `${order.user.firstName} ${order.user.lastName}` : 'Customer',
+      totalAmount: order.totalAmount,
     };
   }
 
@@ -78,7 +100,7 @@ export class OrdersController {
   @UseGuards(AuthGuard)
   async findOne(@Request() req: any, @Param('id') id: string) {
     // Customers can only see their orders
-    const userId = req.user.role === 'CUSTOMER' ? req.user.id : undefined;
+    const userId = req.user.role === 'CUSTOMER' ? req.user.sub : undefined;
     return await this.ordersService.findOne(parseInt(id, 10), userId);
   }
 
@@ -93,7 +115,7 @@ export class OrdersController {
     @Body() updateOrderDto: UpdateOrderDto,
   ) {
     // Customers can only update their orders
-    const userId = req.user.role === 'CUSTOMER' ? req.user.id : undefined;
+    const userId = req.user.role === 'CUSTOMER' ? req.user.sub : undefined;
     return await this.ordersService.update(parseInt(id, 10), updateOrderDto, userId);
   }
 
@@ -115,7 +137,7 @@ export class OrdersController {
   @Put(':id/cancel')
   @UseGuards(AuthGuard)
   async cancelOrder(@Request() req: any, @Param('id') id: string) {
-    const userId = req.user.role === 'CUSTOMER' ? req.user.id : undefined;
+    const userId = req.user.role === 'CUSTOMER' ? req.user.sub : undefined;
     return await this.ordersService.cancel(parseInt(id, 10), userId);
   }
 

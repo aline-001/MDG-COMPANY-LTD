@@ -1,5 +1,4 @@
 'use client';
-import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   CheckCircle2, 
@@ -12,6 +11,8 @@ import {
 } from 'lucide-react';
 // FIX: Changed from 'next/link' to 'react-router-dom'
 import { Link } from 'react-router-dom';
+import ReviewsDisplay from '../../components/ReviewsDisplay';
+import ServiceReviewsSection from '../../components/ServiceReviewsSection';
 
 const shoeServices = [
   {
@@ -30,7 +31,7 @@ const shoeServices = [
   },
   {
     name: "Extreme Cleaning",
-    price: "1500 RWF",
+    price: "1000 RWF",
     time: "3-4 Days",
     featured: true,
     desc: "Complete restoration for heavily soiled pairs.",
@@ -58,8 +59,7 @@ export default function ServicesPage() {
           Professional <span className="text-mdg-blue">Care Menu</span>
         </motion.h1>
         <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-          Expert cleaning for your most valued campus essentials. 
-          Quality guaranteed or we re-clean for free.
+          The world's first Shoe Intelligence & Care Platform
         </p>
       </section>
 
@@ -153,6 +153,12 @@ export default function ServicesPage() {
           </div>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <ReviewsDisplay />
+
+      {/* Leave Review Section */}
+      <ServiceReviewsSection />
 
       {/* Trust Banner */}
       <section className="bg-mdg-navy py-12 px-6">

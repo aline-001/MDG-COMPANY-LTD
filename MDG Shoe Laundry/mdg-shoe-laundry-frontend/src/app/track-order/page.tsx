@@ -16,8 +16,8 @@ export default function TrackOrder() {
     setOrderData(null);
 
     try {
-      // Connects to your NestJS Order model via the /api/orders/:id path
-      const response = await api.get(`/orders/${orderId}`);
+      // Call the public track endpoint with order number
+      const response = await api.get(`/orders/track/${orderId}`);
       setOrderData(response.data);
     } catch (err) {
       setError('Order not found. Please check your ID and try again.');
@@ -76,7 +76,7 @@ export default function TrackOrder() {
             
             <div className="flex items-center gap-2 text-xs font-bold text-mdg-slate uppercase">
               <span className="w-2 h-2 rounded-full bg-mdg-lime animate-pulse"></span>
-              Location: {orderData.pickupLocation}
+              Delivery Location: {orderData.pickupLocation}
             </div>
           </div>
         )}

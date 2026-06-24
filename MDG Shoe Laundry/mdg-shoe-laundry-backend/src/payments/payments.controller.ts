@@ -18,7 +18,7 @@ export class PaymentsController {
     @Body() createPaymentDto: CreatePaymentDto,
   ) {
     return await this.paymentsService.create(
-      req.user.id,
+      req.user.sub,
       createPaymentDto.orderId,
       createPaymentDto,
     );
@@ -50,7 +50,7 @@ export class PaymentsController {
     @Query('skip') skip: string = '0',
     @Query('take') take: string = '10',
   ) {
-    return await this.paymentsService.findByUser(req.user.id, parseInt(skip, 10), parseInt(take, 10));
+    return await this.paymentsService.findByUser(req.user.sub, parseInt(skip, 10), parseInt(take, 10));
   }
 
   /**

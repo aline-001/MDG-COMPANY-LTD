@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Sparkles, Backpack, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -175,8 +175,8 @@ export default function NewOrderPage() {
                         : 'border-gray-200 hover:border-mdg-blue'
                     }`}
                   >
-                    <div className="text-3xl mb-3">
-                      {service.itemType === 'SHOES' ? '👟' : '👜'}
+                    <div className="text-4xl mb-3 text-mdg-blue">
+                      {service.itemType === 'SHOES' ? <Sparkles size={40} /> : <Backpack size={40} />}
                     </div>
                     <h3 className="text-lg font-black text-mdg-navy">{service.name}</h3>
                     <p className="text-sm text-mdg-slate mt-2">{service.description}</p>
@@ -185,7 +185,9 @@ export default function NewOrderPage() {
                       <p className="text-xs text-mdg-slate mt-1">Est. {service.estimatedDays} days</p>
                     </div>
                     {selectedService === service.id && (
-                      <div className="mt-4 text-mdg-blue font-bold">✓ Selected</div>
+                      <div className="mt-4 flex items-center gap-2 text-mdg-blue font-bold">
+                        <Check size={20} /> Selected
+                      </div>
                     )}
                   </button>
                 ))}

@@ -23,6 +23,10 @@ export interface TokenResponse {
     lastName: string;
     role: UserRole;
     profileImage?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+    zipCode?: string;
   };
 }
 
@@ -160,6 +164,33 @@ export class AuthService {
   }
 
   /**
+   * Get current user's profile
+   */
+  async getCurrentUser(userId: number): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        address: true,
+        city: true,
+        zipCode: true,
+        role: true,
+        profileImage: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
+  }
+
+  /**
    * Generate access and refresh tokens
    */
   private async generateTokens(user: any): Promise<TokenResponse> {
@@ -234,7 +265,7 @@ export class AuthService {
     });
 
     // Send reset email
-    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5174'}/auth/forgot-password?token=${resetToken}`;
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
         <div style="background: linear-gradient(135deg, #0E8FDD 0%, #0A5FA0 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
@@ -364,5 +395,132 @@ export class AuthService {
       }
       throw new UnauthorizedException('Invalid or expired reset token');
     }
+  }
+
+  /**
+   * Update user profile
+   */
+  async updateProfile(
+    userId: number,
+    updateData: { firstName?: string; lastName?: string; phone?: string; address?: string; city?: string; zipCode?: string }
+  ): Promise<{ message: string; user: any }> {
+    if (!userId) {
+      throw new BadRequestException('User ID is required');
+    }
+
+    // Check if user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Update only provided fields
+    const updateObject: any = {};
+    if (updateData.firstName !== undefined) updateObject.firstName = updateData.firstName;
+    if (updateData.lastName !== undefined) updateObject.lastName = updateData.lastName;
+    if (updateData.phone !== undefined) updateObject.phone = updateData.phone;
+    if (updateData.address !== undefined) updateObject.address = updateData.address;
+    if (updateData.city !== undefined) updateObject.city = updateData.city;
+    if (updateData.zipCode !== undefined) updateObject.zipCode = updateData.zipCode;
+
+    if (Object.keys(updateObject).length === 0) {
+      throw new BadRequestException('No fields to update');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: updateObject,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        address: true,
+        role: true,
+      },
+    });
+
+    return {
+      message: 'Profile updated successfully',
+      user: updatedUser,
+    };
+  }
+
+  /**
+   * Change password
+   */
+  async changePassword(userId: number, oldPassword: string, newPassword: string): Promise<{ message: string }> {
+    if (!userId || !oldPassword || !newPassword) {
+      throw new BadRequestException('User ID, old password, and new password are required');
+    }
+
+    if (newPassword.length < 8) {
+      throw new BadRequestException('New password must be at least 8 characters');
+    }
+
+    // Check if user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Verify old password
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Old password is incorrect');
+    }
+
+    // Ensure new password is different from old password
+    const isSameAsOld = await bcrypt.compare(newPassword, user.password);
+    if (isSameAsOld) {
+      throw new BadRequestException('New password must be different from old password');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, this.BCRYPT_ROUNDS);
+
+    // Update password
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    // Send confirmation email
+    const confirmationEmail = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h1 style="margin: 0; font-size: 28px;">✓ Password Changed Successfully</h1>
+        </div>
+
+        <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <p style="color: #374151; font-size: 16px;">Hi ${user.firstName},</p>
+          
+          <p style="color: #374151; line-height: 1.6;">
+            Your password has been successfully changed. If you did not make this change, please contact our support team immediately.
+          </p>
+
+          <p style="color: #6b7280; margin-top: 30px; text-align: center; font-size: 14px;">
+            Questions? Contact us at support@mdgshoelaundry.com
+          </p>
+
+          <div style="text-align: center; padding: 20px 0; color: #6b7280; font-size: 12px;">
+            <p style="margin: 0;">© 2026 MDG Shoe Laundry. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    await this.notificationsService.sendEmail(user.email, 'Password Changed Successfully - MDG Shoe Laundry', confirmationEmail);
+
+    return { message: 'Password changed successfully' };
   }
 }

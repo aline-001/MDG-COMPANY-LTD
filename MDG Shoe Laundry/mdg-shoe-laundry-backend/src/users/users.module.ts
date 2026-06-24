@@ -6,7 +6,7 @@ import { AuthModule } from '../auth/auth.module'; // 1. Add this import
 @Module({
   imports: [
     PrismaModule,
-    AuthModule, // 2. Add AuthModule here to provide the missing JwtService link!
+    AuthModule, 
   ],
   providers: [UsersService],
   exports: [UsersService],

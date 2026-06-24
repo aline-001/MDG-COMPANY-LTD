@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
@@ -38,16 +38,17 @@ export default function AccountSettingsPage() {
     // Fetch user profile details
     const fetchUserDetails = async () => {
       try {
-        const res = await api.get('/users/profile');
-        if (res.data) {
+        const res = await api.get('/auth/me');
+        const userData = res.data.data || res.data;
+        if (userData) {
           setFormData({
-            firstName: res.data.firstName || '',
-            lastName: res.data.lastName || '',
-            email: res.data.email || '',
-            phone: res.data.phone || '',
-            address: res.data.address || '',
-            city: res.data.city || '',
-            zipCode: res.data.zipCode || '',
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            address: userData.address || '',
+            city: userData.city || '',
+            zipCode: userData.zipCode || '',
           });
         }
       } catch (error) {
@@ -63,9 +64,10 @@ export default function AccountSettingsPage() {
     setLoading(true);
 
     try {
-      const res = await api.put('/users/profile', formData);
-      if (res.data) {
-        setUser(res.data);
+      const res = await api.put('/auth/profile', formData);
+      const userData = res.data.data || res.data.user || res.data;
+      if (userData) {
+        setUser(userData);
         showNotification({
           title: 'Success',
           message: 'Profile updated successfully',
@@ -138,8 +140,8 @@ export default function AccountSettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl">
-        <div className="mb-8">
+      <div className="max-w-2xl pt-10 md:pt-12">
+        <div className="mb-8 mt-8 md:mt-10">
           <h1 className="text-3xl font-black text-mdg-navy mb-2">Account Settings</h1>
           <p className="text-mdg-slate">Manage your profile and security settings</p>
         </div>

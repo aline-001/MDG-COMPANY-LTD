@@ -13,15 +13,20 @@ import HowItWorksPage from './app/how-it-works/page';
 import TrackOrderPage from './app/track-order/page';
 import LoginPage from './app/auth/login/page';
 import RegisterPage from './app/auth/register/page';
+import ForgotPasswordPage from './app/auth/forgot-password/page';
+import TermsOfServicePage from './app/legal/terms-of-service/page';
+import PrivacyPolicyPage from './app/legal/privacy-policy/page';
 import HelpPage from './app/help/page';
+import GalleryPage from './app/gallery/page';
 import DashboardPage from './app/dashboard/page';
 import NewOrderPage from './app/dashboard/new-order/page';
 import OrderHistoryPage from './app/dashboard/orders';
 import AccountSettingsPage from './app/dashboard/settings';
+import OrderDetailPage from './app/dashboard/order/[orderId]/page';
 import AdminDashboard from './app/admin/dashboard';
 
 function AppRoutes() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Router>
@@ -35,11 +40,17 @@ function AppRoutes() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/how-it-works" element={<HowItWorksPage />} />
             <Route path="/track-order" element={<TrackOrderPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/help" element={<HelpPage />} />
             
             {/* Auth Routes */}
             <Route path="/auth/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} />
             <Route path="/auth/register" element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />} />
+            <Route path="/auth/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" /> : <ForgotPasswordPage />} />
+            
+            {/* Legal Routes */}
+            <Route path="/legal/terms-of-service" element={<TermsOfServicePage />} />
+            <Route path="/legal/privacy-policy" element={<PrivacyPolicyPage />} />
             
             {/* Protected Routes */}
             <Route
@@ -63,6 +74,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <OrderHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/order/:orderId"
+              element={
+                <ProtectedRoute>
+                  <OrderDetailPage />
                 </ProtectedRoute>
               }
             />

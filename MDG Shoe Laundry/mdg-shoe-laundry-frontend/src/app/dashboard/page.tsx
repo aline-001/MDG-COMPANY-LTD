@@ -49,7 +49,7 @@ export default function DashboardPage() {
     const fetchOrders = async () => {
       try {
         const res = await api.get('/orders');
-        const orderList = Array.isArray(res.data) ? res.data : res.data.data || [];
+        const orderList = res.data.orders || [];
         
         // Check for status changes and show notifications
         orderList.forEach((order: any) => {
@@ -70,7 +70,7 @@ export default function DashboardPage() {
         setStats({
           total: orderList.length,
           pending: orderList.filter((o: any) => o.status === 'PENDING' || o.status === 'CONFIRMED').length,
-          inProgress: orderList.filter((o: any) => o.status === 'IN_PROGRESS' || o.status === 'READY_FOR_PICKUP').length,
+          inProgress: orderList.filter((o: any) => o.status === 'IN_PROGRESS' || o.status === 'READY_FOR_DELIVERY').length,
           completed: orderList.filter((o: any) => o.status === 'COMPLETED').length,
         });
       } catch (err) {
@@ -95,8 +95,8 @@ export default function DashboardPage() {
         return <Clock size={16} className="text-yellow-600" />;
       case 'IN_PROGRESS':
         return <Truck size={16} className="text-blue-600" />;
-      case 'READY_FOR_PICKUP':
-        return <AlertCircle size={16} className="text-purple-600" />;
+      case 'READY_FOR_DELIVERY':
+        return <Truck size={16} className="text-purple-600" />;
       case 'COMPLETED':
         return <CheckCircle size={16} className="text-green-600" />;
       default:
@@ -124,7 +124,7 @@ export default function DashboardPage() {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Welcome Section */}
-        <div className="mb-12">
+        <div className="mb-12 mt-20 md:mt-24">
           <h1 className="text-4xl font-black text-mdg-navy tracking-tighter mb-2">
             Welcome Back, {user?.firstName || 'Guest'}!
           </h1>
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-mdg-slate">{new Date(order.pickupDate).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 font-bold text-mdg-navy">${order.total?.toFixed(2) || '0.00'}</td>
+                      <td className="px-6 py-4 font-bold text-mdg-navy">{(order.total || 0).toLocaleString()} RWF</td>
                       <td className="px-6 py-4 text-sm text-mdg-slate">{new Date(order.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
@@ -211,7 +211,7 @@ export default function DashboardPage() {
               <p className="text-mdg-slate font-bold mb-4">No orders yet</p>
               <button
                 onClick={() => navigate('/dashboard/new-order')}
-                className="inline-flex items-center gap-2 bg-mdg-blue text-white font-bold px-6 py-3 rounded-xl hover:bg-mdg-navy transition-all"
+                className="inline-flex items-center gap-2 bg-mdg-navy text-white font-bold px-6 py-3 rounded-xl hover:bg-mdg-navy transition-all"
               >
                 Create Your First Order <ArrowRight size={18} />
               </button>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
           <div className="text-center">
             <button
               onClick={() => navigate('/dashboard/new-order')}
-              className="inline-flex items-center gap-2 bg-mdg-blue text-white font-black px-8 py-4 rounded-2xl hover:bg-mdg-navy transition-all text-lg uppercase tracking-wider"
+              className="inline-flex items-center gap-2 bg-mdg-navy text-white font-black px-8 py-4 rounded-2xl hover:bg-mdg-navy transition-all text-lg uppercase tracking-wider"
             >
               Create New Order <ArrowRight size={20} />
             </button>

@@ -44,6 +44,7 @@ export class OrdersService {
           user: { connect: { id: userId } },
           pickupLocation: data.pickupLocation,
           deliveryLocation: data.deliveryLocation || data.pickupLocation,
+          phoneNumber: data.phoneNumber,
           pickupDate: new Date(data.pickupDate),
           notes: data.notes,
           totalAmount: data.totalAmount || 0,
@@ -128,6 +129,8 @@ export class OrdersService {
         services: serviceNames,
         customerName: `${updatedOrder.user?.firstName} ${updatedOrder.user?.lastName}`,
         id: updatedOrder.id,
+        pickupLocation: updatedOrder.pickupLocation,
+        phoneNumber: data.phoneNumber,
       });
 
       // Send admin notification email
@@ -135,6 +138,7 @@ export class OrdersService {
         orderNumber: updatedOrder.orderNumber,
         customerName: `${updatedOrder.user?.firstName} ${updatedOrder.user?.lastName}`,
         customerEmail: updatedOrder.user?.email || '',
+        customerPhone: data.phoneNumber,
         totalAmount: updatedOrder.totalAmount,
         services: serviceNames,
         pickupLocation: updatedOrder.pickupLocation,
@@ -279,21 +283,19 @@ export class OrdersService {
 
     // Send status update notification
     if (data.status === OrderStatusValues.READY_FOR_PICKUP) {
-      // Send special ready notification with email + SMS
-      await this.notificationsService.sendOrderReadyNotification(order.userId);
-    } else {
-      const statusMessages = {
-        [OrderStatusValues.CONFIRMED]: 'Your order has been confirmed!',
-        [OrderStatusValues.IN_PROGRESS]: 'Your order is being processed.',
-        [OrderStatusValues.COMPLETED]: 'Your order has been completed!',
-        [OrderStatusValues.CANCELLED]: 'Your order has been cancelled.',
-      };
-
-      await this.notificationsService.sendNotification(
-        order.userId,
-        statusMessages[data.status] || `Order status updated to ${data.status}`,
-        'email',
-      );
+      // Send special ready notification with email + SMS including pickup location
+      await this.notificationsService.sendOrderReadyNotification(order.userId, {
+        location: order.pickupLocation,
+        date: order.pickupDate,
+      });
+    } else if (data.status !== OrderStatusValues.PENDING) {
+      // Send detailed status update notification for other status changes
+      await this.notificationsService.sendOrderStatusUpdateNotification(order.userId, {
+        orderNumber: order.orderNumber,
+        status: data.status,
+        pickupLocation: order.pickupLocation,
+        pickupDate: order.pickupDate,
+      });
     }
 
     return updatedOrder;

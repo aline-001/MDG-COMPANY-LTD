@@ -1,4 +1,3 @@
-import React from 'react';
 // FIX: Changed from 'next/link' to 'react-router-dom'
 import { Link } from 'react-router-dom';
 
@@ -17,7 +16,7 @@ export const Hero = () => {
             Your Shoes and Bags, <span className="text-mdg-blue">Our Priority.</span>
           </h1>
           <p className="text-gray-300 text-lg mb-8">
-            The ultimate campus fresh-up. Professional cleaning starting from only <span className="text-mdg-lime font-bold">800 RWF</span>. 
+            The ultimate fresh-up. Professional cleaning starting from only <span className="text-mdg-lime font-bold">800 RWF</span>. 
             Get 25% cash back on your first bag wash!
           </p>
           <div className="flex flex-wrap gap-4">
