@@ -1,7 +1,7 @@
 # 🔐 Authentication Fix - "Unauthorized" Error Resolution
 
 ## Problem Identified
-You were getting "Unauthorized" error when creating orders even though you were logged in.
+i was getting "Unauthorized" error when creating orders even though i was logged in.
 
 ### Root Cause: JWT Payload Mismatch
 The issue was in how the **JWT token payload** was being used vs. how it was being accessed in the code:
