@@ -1,273 +1,102 @@
-#  MDG Shoe Laundry - Professional Shoe Cleaning Platform
+# MDG Shoe Laundry
 
-> **A complete, production-ready shoe laundry management system with beautiful UI, strong backend, and comprehensive features.**
+A full-stack web platform for a shoe cleaning business. Customers book shoe cleaning, track their orders and leave reviews. Staff and admins manage orders, services, payments and customers from a dashboard.
 
-##  Project Vision
+**Built by [Aline Asimwe](https://github.com/aline-001)**: design, frontend and backend.
 
-Transform shoe care into a seamless, professional experience with:
-- Beautiful, modern user interface
-- Secure authentication & role-based access
-- Complete business management system
-- Professional customer experience
-- Business analytics & insights
+## Features
 
----
+**For customers**
+- Create an account, log in and reset a forgotten password
+- Book a cleaning order for one or more pairs of shoes
+- Track an order's status from booking to delivery
+- Leave reviews and ratings on services
+- Get email and SMS notifications about orders
 
-## Key Features
+**For staff and admins**
+- Dashboard with orders, customers and revenue
+- Update order status and manage the service catalogue
+- Record and follow up payments
+- Role-based access, so each user only sees what they are allowed to
 
-### For Customers
--  Easy order creation and tracking
--  Profile management
--  Multiple payment options
-- Leave reviews & ratings
-- Order history & receipts
-- Real-time notifications
+## Tech stack
 
-### For Admin/Staff
--  Comprehensive dashboard
-- Order management & tracking
-- Revenue analytics
-- Customer management
-- Business statistics
-- Service management
+| Part | Technology |
+| --- | --- |
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, React Router, Framer Motion |
+| Backend | NestJS (TypeScript), REST API |
+| Database | PostgreSQL with Prisma ORM |
+| Authentication | JWT with Passport, bcrypt password hashing, role guards |
+| Notifications | Email (Nodemailer) and SMS (Twilio) |
+| Testing | Jest unit tests and an end-to-end test (Supertest) |
+| Code quality | ESLint and Prettier |
 
-### Platform Features
--  JWT authentication
-- Role-based access control
-- Payment processing
-- Email notifications
-- SMS notifications
-- Mobile responsive
-- Accessible design
-- Fast performance
-
----
-
-## Architecture
-
-### Backend Stack
-- **Framework**: NestJS (TypeScript)
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: JWT with refresh tokens
-- **Security**: Bcrypt password hashing
-
-### Frontend Stack
-- **Framework**: Next.js 14+ (React)
-- **Styling**: TailwindCSS
-- **Language**: TypeScript
-- **Design**: Professional corporate theme
-
----
-
-##  Project Structure
+## How it is built
 
 ```
-mdg-shoe-laundry/
-├── mdg-shoe-laundry-backend/      Backend API (NestJS)
-├── mdg-shoe-laundry-frontend/     Frontend (Next.js)
-├── PROJECT_SUMMARY.md              Full project details
-└── QUICK_START.md                  Quick setup guide
+MDG Shoe Laundry/
+├── mdg-shoe-laundry-frontend/   React + TypeScript app (Vite)
+│   └── src/
+│       ├── app/                 Pages: home, services, auth, dashboard, admin, track order
+│       ├── components/          Navbar, footer, hero, reviews, protected routes
+│       ├── contexts/            Auth and notification state
+│       └── lib/api.ts           API client
+└── mdg-shoe-laundry-backend/    NestJS API
+    ├── src/
+    │   ├── auth/                Login, JWT, role guards
+    │   ├── users/  orders/  services/  payments/  reviews/  notifications/
+    │   └── prisma/              Database service
+    └── prisma/schema.prisma     Data models
 ```
 
----
+**Data models:** User, Service, Order, Shoe, OrderService, Payment, Review, Notification, FileUpload.
 
-## Quick Start
+**Design:** the UI follows a consistent design system (navy, blue and lime brand colours, shared spacing and typography). See [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
 
-### Prerequisites
-- Node.js 18+ 
-- PostgreSQL 12+
-- npm or yarn
+## Run it locally
 
-### Backend Setup
+You need Node.js 18+ and PostgreSQL.
+
+**1. Backend** (runs on http://localhost:3000)
+
 ```bash
 cd mdg-shoe-laundry-backend
 npm install
-# Configure .env file
-npx prisma migrate dev
-npm run start
 ```
 
-### Frontend Setup
+Create a `.env` file:
+
+```
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/mdg_shoe_laundry
+JWT_SECRET=your-secret-key
+```
+
+Then:
+
+```bash
+npx prisma migrate deploy
+npm run prisma:seed   # optional: sample data
+npm run start:dev
+```
+
+**2. Frontend** (runs on http://localhost:5173), in a new terminal:
+
 ```bash
 cd mdg-shoe-laundry-frontend
 npm install
-# Configure .env.local file
 npm run dev
 ```
 
-**Then visit**: http://localhost:3000
+**Run the tests** (backend):
 
----
-
-## Documentation
-
-- **[QUICK_START.md](./QUICK_START.md)** - Setup instructions & quick reference
-- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - Complete feature list & architecture
-
----
-
-## UI Highlights
-
-- Professional color scheme (Blue/Teal)
-- Fully responsive design
-- Smooth animations & transitions
-- Accessible components
--  Reusable component library
-
----
-
-##  Security
-
-✅ JWT authentication with expiry
-✅ Refresh token mechanism
-✅ Role-based access control
-✅ Bcrypt password hashing
-✅ Input validation
-✅ CORS protection
-✅ Secure error handling
-
----
-
-##  Database Schema
-
-**Core Models:**
-- `User` - Customers, staff, admin
-- `Order` - Order management
-- `Shoe` - Individual shoe items
-- `Service` - Service catalog
-- `Payment` - Payment tracking
-- `Review` - Customer reviews
-- `Notification` - Multi-channel notifications
-- `FileUpload` - File management
-
----
-
-##  Pages & Routes
-
-### Public Pages
-- Home (`/`)
-- Services (`/services`)
-- Pricing (`/pricing`)
-- How It Works (`/how-it-works`)
-- About (`/about`)
-- Contact (`/contact`)
-
-### Authenticated Pages
-- Dashboard (`/dashboard`)
-- Admin Dashboard (`/admin/dashboard`)
-
-### Auth Pages
-- Login (`/auth/login`)
-- Register (`/auth/register`)
-
----
-
-## API Endpoints
-
-### Authentication
-```
-POST   /auth/register
-POST   /auth/login
-POST   /auth/refresh
-POST   /auth/logout
+```bash
+npm test          # unit tests
+npm run test:e2e  # end-to-end test
 ```
 
-### Orders
-```
-GET    /orders
-POST   /orders
-GET    /orders/:id
-PUT    /orders/:id
-PUT    /orders/:id/status
-```
+## More documentation
 
-### Other Modules
-```
-GET    /services
-POST   /orders/:id/reviews
-GET    /payments
-POST   /payments
-```
-
----
-
-## What's Included
-
-✅ Complete Prisma schema
-✅ NestJS backend modules (Auth, Orders, Services, Payments, Reviews)
-✅ JWT authentication with RBAC
-✅ Next.js pages (6 public + dashboard + admin)
-✅ Reusable component library
-✅ Design system (colors, typography, spacing)
-✅ Responsive layouts
-✅ Form validation
-✅ Error handling
-✅ Type safety (TypeScript)
-
----
-
-## Deployment Ready
-
-The application is ready for deployment to:
-- Vercel (Frontend)
-- Heroku / Railway / Render (Backend)
-- AWS / DigitalOcean (Full stack)
-- Docker (Containerized)
-
----
-
-## Future Enhancements
-
-- AI shoe analysis
-- Pickup/delivery tracking
-- SMS notifications
-- Advanced analytics
-- Mobile app (React Native)
-- Subscription plans
-- Multi-location support
-- Staff scheduling
-
----
-
-##  Contributing
-
-Feel free to extend and customize:
-1. Add new services
-2. Extend API endpoints
-3. Create new pages
-4. Add payment gateways
-5. Integrate third-party services
-
----
-
-##  License
-
-This project is built for MDG Shoe Laundry. All rights reserved.
-
----
-
-## Support
-
-For questions or issues:
-1. Check QUICK_START.md
-2. Review PROJECT_SUMMARY.md
-3. Check console logs
-4. Review component source code
-
----
-
-##  Getting Started
-
-1. **Read** → [QUICK_START.md](./QUICK_START.md)
-2. **Setup** → Backend + Frontend
-3. **Visit** → http://localhost:3000
-4. **Explore** → All features
-5. **Customize** → Your needs
-
----
-
-## Ready to Launch!
-
-That's our professional shoe laundry platform.
-
-**Happy cleaning! **
+- [QUICK_START.md](./QUICK_START.md): step-by-step setup
+- [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md): colours, typography and UI rules
+- [DEPLOYMENT_IMPROVEMENTS.md](./DEPLOYMENT_IMPROVEMENTS.md): deployment notes
+- [PRIVACY_POLICY.md](./PRIVACY_POLICY.md) and [TERMS_OF_SERVICE.md](./TERMS_OF_SERVICE.md)
